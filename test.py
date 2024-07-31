@@ -4,6 +4,9 @@ from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from embeddings import Embeddings
+from session import Session
+
 
 # Load the .env file
 load_dotenv()
@@ -16,57 +19,33 @@ def load_system_file(filename):
     return content
 
 
-def load_history():
-    return load_system_file('history')
-
-
 def load_system_context():
     return load_system_file('system_context')
 
 
-def write_to_history(user_message, completion):
-    filename = os.path.join('sys', 'history.txt')
-    with open(filename, 'a', encoding='utf-8') as fout:
-        fout.write('\n\n' + str(completion.created))
-        fout.write('\n\nUser Message\n')
-        fout.write(user_message)
-        fout.write('\n\nReply\n')
-        fout.write(completion.choices[0].message.content)
-
-
-def send_message(history, message):
-    user_message = history + '\n\n' + str(datetime.now().timestamp()) + '\n\nLatest User Message\n' + message
-
-    completion = client.chat.completions.create(
-        model=MODEL,
-        messages=[
-            {
-                "role": "system",
-                "content": system_context,
-            },
-            {
-                "role": "user",
-                "content": user_message,
-            },
-        ]
+def test_session():
+    session = Session(
+        client=OpenAI(api_key=os.environ.get("OPENAI_API_KEY")),
+        model="gpt-4o-mini",
+        system_prompt=load_system_context()
     )
 
-    write_to_history(message, completion)
+    while True:
+        user_input = input('you: ')
+        response = session.send_message(user_input)
+        print("\n")
+        print(response)
+        print("\n\n")
 
-    print("\n\n")
-    print(completion.choices[0].message.content)
-    print("\n\n")
+
+def test_embeddings():
+    embeddings = Embeddings(
+        client=OpenAI(api_key=os.environ.get("OPENAI_API_KEY")),
+        model='text-embedding-3-small',
+    )
+
+    print(embeddings.generate('hello'))
 
 
 if __name__ == "__main__":
-    MODEL = "gpt-4o-mini"
-    client = OpenAI(
-        api_key=os.environ.get("OPENAI_API_KEY"),
-    )
-
-    system_context = load_system_context()
-    history = load_history()
-
-    message = """I don't have a calendar yet. Can you create one for me?"""
-
-    send_message(history, message)
+    test_embeddings()
