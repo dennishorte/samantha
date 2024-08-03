@@ -64,5 +64,33 @@ To store a cake frosted with cream cheese cheese frosting, chill the uncovered c
     print(len(long_text.split()), len(long_tokens))
 
 
+def test_chroma():
+    """
+    Running the database server: chroma run --host localhost --port 8000 --path ./local_chroma
+    """
+
+    import chromadb
+
+    client = chromadb.HttpClient(host='localhost', port=8000)
+
+    collection = client.get_collection(name="test")
+
+    ## These are added to the persistent database now, so no need to do this part again.
+    # collection = client.create_collection(name="test")
+    # collection.add(
+    #     documents=[
+    #         "This is a document about pineapple",
+    #         "This is a document about oranges"
+    #     ],
+    #     ids=["id1", "id2"]
+    # )
+
+    results = collection.query(
+        query_texts=["This is a query document about hawaii"], # Chroma will embed this for you
+        n_results=2 # how many results to return
+    )
+    print(results)
+
+
 if __name__ == "__main__":
-    test_tokenizer()
+    test_chroma()
