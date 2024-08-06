@@ -2,7 +2,7 @@
   "name": "samantha-app",
   "version": "0.0.1",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service serve --port 9090",
     "build": "vue-cli-service build"
   },
   "dependencies": {

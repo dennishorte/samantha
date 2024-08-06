@@ -10,8 +10,11 @@ const port = 3001
 app.use(express.static(path.join(__dirname, '../app/dist')))
 app.use(bodyParser.json({ limit: "5kb" }))
 
-app.get('/test', (req, res) => {
-  res.json({ foo: 'bar' })
+app.post('/api/test', (req, res) => {
+  res.json({
+    status: 'success',
+    foo: 'bar',
+  })
 })
 
 

@@ -18,11 +18,11 @@ app.config.compilerOptions.whitespace = 'preserve'
 app.config.unwrapInjectedRef = true
 
 // Global function imports
-//import axiosWrapper from './util/axiosWrapper.js'
-//import modalWrapper from './util/modal.js'
+import axiosWrapper from './util/axiosWrapper.js'
+app.config.globalProperties.$post = axiosWrapper.post
 
+//import modalWrapper from './util/modal.js'
 //app.config.globalProperties.$modal = modalWrapper.getModal
-//app.config.globalProperties.$post = axiosWrapper.post
 
 
 app.mount('#app')
