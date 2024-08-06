@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '@/components/Home'
 
+import authRoutes from '@/modules/auth/router.js'
+
 import authUtil from '@/modules/auth/util.js'
 
 
@@ -13,6 +15,8 @@ const router = createRouter({
       name: 'Home',
       component: Home,
     },
+
+    ...authRoutes,
   ]
 })
 

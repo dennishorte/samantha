@@ -1,11 +1,14 @@
+const db = require('../models/db.js')
+
+
 module.exports = {
 }
 
-async function _createFirstUserIfNone(name, password) {
+async function _createFirstUserIfNone(email, password) {
   if (await db.user.isEmpty()) {
     console.log('User db is empty. Creating first user.')
     const user = await db.user.create({
-      name,
+      email,
       password,
       slack: null,
     })
@@ -13,8 +16,8 @@ async function _createFirstUserIfNone(name, password) {
 }
 
 module.exports.login = async function(req, res) {
-  await _createFirstUserIfNone(req.body.user.name, req.body.user.password)
-  const user = await db.user.checkPassword(req.body.user.name, req.body.user.password)
+  await _createFirstUserIfNone(req.body.user.email, req.body.user.password)
+  const user = await db.user.checkPassword(req.body.user.email, req.body.user.password)
 
   if (!user) {
     res.json({
@@ -25,7 +28,7 @@ module.exports.login = async function(req, res) {
   else if (user.deactivated) {
     res.json({
       status: 'error',
-      message: `User (${req.body.name}) has been deactivated`,
+      message: `User (${req.body.email}) has been deactivated`,
     })
   }
   else {
@@ -33,7 +36,7 @@ module.exports.login = async function(req, res) {
       status: 'success',
       user: {
         _id: user._id,
-        name: user.name,
+        email: user.email,
         token: user.token,
       },
     })
