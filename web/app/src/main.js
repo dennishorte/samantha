@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from '@/App.vue'
 import router from '@/router'
-//import store from '@/store'
+import store from '@/store'
 
 //import authUtil from '@/modules/auth/util.js'
 //authUtil.initialize()
@@ -12,7 +12,7 @@ import 'bootstrap'
 
 const app = createApp(App)
 app.use(router)
-//app.use(store)
+app.use(store)
 
 app.config.compilerOptions.whitespace = 'preserve'
 app.config.unwrapInjectedRef = true

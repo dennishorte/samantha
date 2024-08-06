@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '@/components/Home'
 
-//import authUtil from '@/modules/auth/util.js'
+import authUtil from '@/modules/auth/util.js'
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,14 +17,14 @@ const router = createRouter({
 })
 
 
-/* router.beforeEach((to, from, next) => {
- *   if (to.matched.every(authUtil.canAccess)) {
- *     next()
- *   }
- *   else {
- *     next({ name: 'Login' })
- *   }
- * }) */
+router.beforeEach((to, from, next) => {
+  if (to.matched.every(authUtil.canAccess)) {
+    next()
+  }
+  else {
+    next({ name: 'Login' })
+  }
+})
 
 
 export default router

@@ -4,18 +4,19 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const path = require('path')
 
+const middleware = require('./src/middleware.js')
+const routes = require('./src/routes')
+
 const app = express()
 const port = 3001
 
 app.use(express.static(path.join(__dirname, '../app/dist')))
+app.use(middleware.authenticate)
 app.use(bodyParser.json({ limit: "5kb" }))
 
-app.post('/api/test', (req, res) => {
-  res.json({
-    status: 'success',
-    foo: 'bar',
-  })
-})
+
+// Guest routes
+app.post('/api/guest/login', routes.login)
 
 
 ////////////////////////////////////////////////////////////
