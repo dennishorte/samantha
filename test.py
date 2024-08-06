@@ -15,22 +15,11 @@ load_dotenv()
 GPT_MODEL = 'gpt-4o-mini'
 
 
-def load_system_file(filename):
-    filepath = os.path.join('sys', filename + '.txt')
-    with open(filepath, 'r', encoding='utf-8') as fin:
-        content = fin.read()
-    return content
-
-
-def load_system_context():
-    return load_system_file('system_context')
-
-
 def test_session():
     session = Session(
         client=OpenAI(api_key=os.environ.get("OPENAI_API_KEY")),
         model=GPT_MODEL,
-        system_prompt=load_system_context()
+        system_prompt="""You are a highly effecient personal assistant and project manager."""
     )
 
     while True:
@@ -93,4 +82,4 @@ def test_chroma():
 
 
 if __name__ == "__main__":
-    test_chroma()
+    test_session()
