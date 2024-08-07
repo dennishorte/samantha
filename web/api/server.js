@@ -19,6 +19,9 @@ app.use(bodyParser.json({ limit: "5kb" }))
 app.post('/api/guest/login', routes.login)
 
 
+app.post('/api/message', routes.message)
+
+
 ////////////////////////////////////////////////////////////
 // Initialize
 

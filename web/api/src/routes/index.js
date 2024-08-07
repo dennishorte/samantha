@@ -2,6 +2,8 @@ const db = require('../models/db.js')
 
 
 module.exports = {
+  login,
+  message,
 }
 
 async function _createFirstUserIfNone(email, password) {
@@ -15,7 +17,7 @@ async function _createFirstUserIfNone(email, password) {
   }
 }
 
-module.exports.login = async function(req, res) {
+async function login(req, res) {
   await _createFirstUserIfNone(req.body.user.email, req.body.user.password)
   const user = await db.user.checkPassword(req.body.user.email, req.body.user.password)
 
@@ -41,4 +43,26 @@ module.exports.login = async function(req, res) {
       },
     })
   }
+}
+
+async function message(req, res) {
+  const threadId = req.body.threadId
+  const message = req.body.message
+
+  const user = db.user.findById(req.body.userId)
+  const thread = db.thread.findById(req.body.threadId)
+
+  if (!thread.canAccess(user)) {
+    res.json({
+      status: 'error',
+      message: 'not authorized',
+    })
+    return
+  }
+
+  thread.addMessage(user, message)
+
+  res.json({
+    status: 'success',
+  })
 }

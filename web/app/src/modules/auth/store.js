@@ -17,6 +17,10 @@ function getCachedUser() {
   }
 }
 
+function setAxiosAuthorization(user) {
+  axios.defaults.headers.common['Authorization'] = 'bearer ' + user.token
+}
+
 function setCachedUser(user) {
   localStorage.setItem('auth.user', JSON.stringify(user))
 }
@@ -50,7 +54,13 @@ export default {
       state.status = 'success'
       state.user = user
       setCachedUser(user)
-      axios.defaults.headers.common['Authorization'] = 'bearer ' + user.token
+      setAxiosAuthorization(user)
+    },
+
+    initialize(state) {
+      if (state.user && state.user.token) {
+        setAxiosAuthorization(state.user)
+      }
     },
 
     logout(state) {

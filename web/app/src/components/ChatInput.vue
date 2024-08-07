@@ -1,6 +1,12 @@
 <template>
   <div class="chat-input">
-    <textarea class="form-control" v-model="text" placeholder="message" rows="1" />
+    <textarea
+      class="form-control"
+      v-model="text"
+      @keyup.enter="sendMessage"
+      placeholder="message"
+      rows="1"
+    />
   </div>
 </template>
 
@@ -9,10 +15,26 @@
 export default {
   name: 'ChatInput',
 
+  inject: ['user'],
+
   data() {
     return {
       text: '',
     }
+  },
+
+  methods: {
+    async sendMessage() {
+      console.log('sending message: ' + this.text)
+
+      const response = await this.$post('/api/message', {
+        userId: this.user._id,
+        threadId: null,
+        message: this.text,
+      })
+
+      console.log(response)
+    },
   },
 }
 </script>

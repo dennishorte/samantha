@@ -22,7 +22,7 @@ jwtOpts.secretOrKey = process.env.SECRET_KEY
 passport.use(new JwtStrategy(
   jwtOpts,
   async function(tokenData, cb) {
-    const id = ObjectId(tokenData.user_id)
+    const id = new ObjectId(tokenData.user_id)
     const user = await db.user.findById(id)
 
     if (!user) { return cb(null, false) }
