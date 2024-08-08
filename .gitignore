@@ -1,8 +1,6 @@
 .env
-__pycache__
-
-local_chroma
-chroma.log
 .google.token.json
 .google.credentials.json
 .DS_Store
+__pycache__
+chroma_db
