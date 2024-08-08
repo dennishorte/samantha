@@ -24,16 +24,9 @@ export default {
   },
 
   methods: {
-    async sendMessage() {
-      console.log('sending message: ' + this.text)
-
-      const response = await this.$post('/api/message', {
-        userId: this.user._id,
-        threadId: null,
-        message: this.text,
-      })
-
-      console.log(response)
+    sendMessage() {
+      this.$emit('message-input', this.text)
+      this.text = ''
     },
   },
 }
