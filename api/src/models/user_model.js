@@ -1,4 +1,5 @@
-const bcrypt = require('bcrypt');
+const { ObjectId } = require('mongodb')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const databaseClient = require('../util/mongo.js').client
@@ -50,10 +51,12 @@ User.create = async function({ email, password }) {
 }
 
 User.findById = async function(id) {
+  id = _coerceId(id)
   return await userCollection.findOne({ _id: id })
 }
 
 User.findByIds = async function(ids) {
+  ids = ids.map(id => _coerceId(id))
   return await userCollection.find({ _id: { $in: ids } })
 }
 
@@ -70,6 +73,15 @@ User.isEmpty = async function() {
   }
   catch (err) {
     console.log(err)
+  }
+}
+
+function _coerceId(id) {
+  if (typeof id === 'object') {
+    return id
+  }
+  else {
+    return new ObjectId(id)
   }
 }
 

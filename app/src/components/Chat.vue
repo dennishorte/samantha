@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
-    <ChatHistory class="max-size" />
-    <ChatInput class="min-size" @message-input="sendMessage" />
+    <ChatHistory class="max-size" :messages="thread.messages" />
+    <ChatInput class="min-size" @message-input="messageInput" />
   </div>
 </template>
 
@@ -18,17 +18,13 @@ export default {
     ChatInput,
   },
 
-  inject: ['user'],
+  props: {
+    thread: Object,
+  },
 
   methods: {
-    async sendMessage(text) {
-      const response = await this.$post('/api/message', {
-        userId: this.user._id,
-        threadId: null,
-        message: text,
-      })
-
-      console.log(response)
+    messageInput(message) {
+      this.$emit('message-input', message)
     },
   },
 }

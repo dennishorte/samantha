@@ -1,6 +1,14 @@
 <template>
   <div class="chat-history">
-    history
+    <template v-if="messages.length === 0">
+      new chat
+    </template>
+
+    <template v-else>
+      <div v-for="m in messages">
+        {{ m }}
+      </div>
+    </template>
   </div>
 </template>
 
@@ -9,10 +17,8 @@
 export default {
   name: 'ChatHistory',
 
-  data() {
-    return {
-      text: '',
-    }
+  props: {
+    messages: Array,
   },
 }
 </script>

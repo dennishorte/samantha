@@ -1,21 +1,24 @@
-
 module.exports = {
   Thread,
   findById,
 }
 
-function Thread() {
-  this.userIds = []
+function Thread(userId) {
+  this.userIds = [userId]
   this.messages = []
 }
 
 Thread.prototype.canAccess = function(user) {
-  return true
-  return this.users.find(id => id === user._id)
+  return this.userIds.find(id => id === user._id)
 }
 
 Thread.prototype.addMessage = function(user, message) {
-  console.log('received:\n' + message)
+  this.messages.push({
+    role: 'user',
+    userId: user._id,
+    text: message,
+    timestamp: Date.now()
+  })
 }
 
 

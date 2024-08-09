@@ -49,10 +49,18 @@ async function message(req, res) {
   const threadId = req.body.threadId
   const message = req.body.message
 
-  const user = db.user.findById(req.body.userId)
-  const thread = db.thread.findById(req.body.threadId)
+  const user = await db.user.findById(req.body.userId)
+
+  let thread
+  if (req.body.threadId === null) {
+    thread = new db.thread.Thread(user._id)
+  }
+  else {
+    thread = await db.thread.findById(req.body.threadId)
+  }
 
   if (!thread.canAccess(user)) {
+    console.log(thread, user)
     res.json({
       status: 'error',
       message: 'not authorized',
@@ -64,5 +72,6 @@ async function message(req, res) {
 
   res.json({
     status: 'success',
+    thread,
   })
 }
