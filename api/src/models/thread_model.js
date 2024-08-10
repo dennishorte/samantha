@@ -1,27 +1,40 @@
-module.exports = {
-  Thread,
-  findById,
+const threadlib = require('../util/thread.js')
+
+const databaseClient = require('../util/mongo.js').client
+const database = databaseClient.db('sam')
+const threadCollection = database.collection('thread')
+
+
+const Thread = {}
+module.exports = Thread
+
+
+Thread.findById = async function(threadId) {
+  return await threadCollection.findOne({ _id: threadId })
 }
 
-function Thread(userId) {
-  this.userIds = [userId]
-  this.messages = []
+Thread.findByUserId = async function(userId) {
+  const cursor = await threadCollection.find({ userId })
+  const threads = await cursor.toArray()
+  return threads
 }
 
-Thread.prototype.canAccess = function(user) {
-  return this.userIds.find(id => id === user._id)
+Thread.append = async function(threadId, message) {
+  console.log(message)
+  return await threadCollection.updateOne(
+    { _id: threadId },
+    { $push: { messages: message }},
+  )
 }
 
-Thread.prototype.addMessage = function(user, message) {
-  this.messages.push({
-    role: 'user',
-    userId: user._id,
-    text: message,
-    timestamp: Date.now()
+Thread.create = async function(userId) {
+  const thread = new threadlib.Thread(userId)
+  const insertResult = await threadCollection.insertOne({
+    userId,
+    messages: [],
   })
-}
-
-
-function findById(threadId) {
-  return new Thread()
+  if (!insertResult.insertedId) {
+    throw new Error('thread creation failed')
+  }
+  return await Thread.findById(insertResult.insertedId)
 }

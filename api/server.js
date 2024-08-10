@@ -13,6 +13,7 @@ const port = 3001
 app.use(express.static(path.join(__dirname, '../app/dist')))
 app.use(middleware.authenticate)
 app.use(bodyParser.json({ limit: "5kb" }))
+app.use(middleware.coerceIds)
 
 
 // Guest routes
@@ -20,6 +21,7 @@ app.post('/api/guest/login', routes.login)
 
 
 app.post('/api/message', routes.message)
+app.post('/api/threads', routes.threads)
 
 
 ////////////////////////////////////////////////////////////

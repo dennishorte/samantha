@@ -14,12 +14,12 @@ async function test() {
 
   await client.createCollection({
     name: "test_collection",
-    embeddingFunction: new openai.ChromaEmbedder(),
+    embeddingFunction: new OpenAiEmbedder(),
   })
 
   const collection = await client.getCollection({
     name: "test_collection",
-    embeddingFunction: new openai.ChromaEmbedder(),
+    embeddingFunction: new OpenAiEmbedder(),
   })
 
   await collection.add({
@@ -43,3 +43,6 @@ async function test() {
 
   console.log(result)
 }
+
+function OpenAiEmbedder() {}
+ChromaEmbedder.prototype.generate = openai.embed

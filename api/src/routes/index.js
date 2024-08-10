@@ -1,9 +1,10 @@
 const db = require('../models/db.js')
-
+const { Message } = require('../util/thread.js')
 
 module.exports = {
   login,
   message,
+  threads,
 }
 
 async function _createFirstUserIfNone(email, password) {
@@ -46,32 +47,50 @@ async function login(req, res) {
 }
 
 async function message(req, res) {
-  const threadId = req.body.threadId
-  const message = req.body.message
+  const text = _ensureText(req.body.text)
+  const thread = await _getOrCreateThread(req.body.userId, req.body.threadId)
 
-  const user = await db.user.findById(req.body.userId)
-
-  let thread
-  if (req.body.threadId === null) {
-    thread = new db.thread.Thread(user._id)
-  }
-  else {
-    thread = await db.thread.findById(req.body.threadId)
-  }
-
-  if (!thread.canAccess(user)) {
-    console.log(thread, user)
-    res.json({
-      status: 'error',
-      message: 'not authorized',
-    })
-    return
-  }
-
-  thread.addMessage(user, message)
+  await db.thread.append(thread._id, Message('user', text))
 
   res.json({
     status: 'success',
-    thread,
+    thread: await db.thread.findById(thread._id),
   })
+}
+
+async function threads(req, res) {
+  const threads = await db.thread.findByUserId(req.body.userId)
+  console.log(threads)
+
+  res.json({
+    status: 'success',
+    threads,
+  })
+}
+
+function _ensureText(text) {
+  if (!text) {
+    throw new Error('no text')
+  }
+
+  text = text.trim()
+
+  if (!text) {
+    throw new Error('empty text')
+  }
+
+  return text
+}
+
+async function _getOrCreateThread(userId, threadId) {
+  if (threadId) {
+    const thread = await db.thread.getById(threadId)
+    if (!thread.canAccess(user)) {
+      throw new Error('not authorized')
+    }
+    return thread
+  }
+  else {
+    return await db.thread.create(userId)
+  }
 }

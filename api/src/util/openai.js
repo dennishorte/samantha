@@ -3,12 +3,10 @@ const openai = new OpenAI()
 
 
 module.exports = {
-  ChromaEmbedder,
+  generate,
 }
 
-function ChromaEmbedder() {}
-
-ChromaEmbedder.prototype.generate = async function(texts) {
+async function embed(texts) {
   const embedding = await openai.embeddings.create({
     model: "text-embedding-3-small",
     input: texts,

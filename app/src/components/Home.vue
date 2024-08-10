@@ -42,12 +42,11 @@ export default {
       const response = await this.$post('/api/message', {
         userId: this.user._id,
         threadId: this.threads[0]._id,
-        message: text,
+        text,
       })
 
       // Put the updated thread into the first position of the threads list.
       const thread = response.thread
-
       if (thread) {
         const updated = this.threads.filter(x => x._id === thread._id)
         updated.unshift(thread)
@@ -59,6 +58,18 @@ export default {
         alert("didn't get a thread")
       }
     },
+  },
+
+  async mounted() {
+    const response = await this.$post('/api/threads', { userId: this.user._id })
+    if (response.status === 'success') {
+      if (response.threads.length > 0) {
+        this.threads = response.threads
+      }
+    }
+    else {
+      throw new Error('error fetching threads: ' + response.message)
+    }
   },
 }
 </script>
