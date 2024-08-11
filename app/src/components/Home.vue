@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Sidebar />
+    <Sidebar :threads="threads" />
     <Chat :thread="threads[0]" @message-input="sendMessage" />
   </div>
 </template>

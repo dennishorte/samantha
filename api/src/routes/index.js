@@ -1,5 +1,6 @@
 const db = require('../models/db.js')
-const { Message } = require('../util/thread.js')
+const openai = require('../util/openai.js')
+const { MessageFactory, Thread } = require('../util/thread.js')
 
 module.exports = {
   login,
@@ -50,11 +51,19 @@ async function message(req, res) {
   const text = _ensureText(req.body.text)
   const thread = await _getOrCreateThread(req.body.userId, req.body.threadId)
 
-  await db.thread.append(thread._id, Message('user', text))
+  const userMessage = MessageFactory('user', text)
+  const context = [...thread.getMessages(), userMessage]
+  const response = await _getAssistantResponse(context)
+
+  // Record the conversation
+  await db.thread.append(thread.getId(), [
+    userMessage,
+    MessageFactory('assistant', response.content),
+  ])
 
   res.json({
     status: 'success',
-    thread: await db.thread.findById(thread._id),
+    thread: await db.thread.findById(thread.getId()),
   })
 }
 
@@ -83,14 +92,27 @@ function _ensureText(text) {
 }
 
 async function _getOrCreateThread(userId, threadId) {
+  let data
+
   if (threadId) {
-    const thread = await db.thread.getById(threadId)
-    if (!thread.canAccess(user)) {
-      throw new Error('not authorized')
-    }
-    return thread
+    data = await db.thread.findById(threadId)
   }
   else {
-    return await db.thread.create(userId)
+    data = await db.thread.create(userId)
+  }
+
+  const thread = new Thread(data)
+  if (!thread.canAccess(userId)) {
+    throw new Error('not authorized')
+  }
+  return thread
+}
+
+async function _getAssistantResponse(messages) {
+  const response = await openai.complete(messages)
+  return {
+    role: 'assistant',
+    content: response.message.content,
+    timestamp: Date.now(),
   }
 }

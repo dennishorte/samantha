@@ -20,15 +20,21 @@ Thread.findByUserId = async function(userId) {
 }
 
 Thread.append = async function(threadId, message) {
-  console.log(message)
-  return await threadCollection.updateOne(
-    { _id: threadId },
-    { $push: { messages: message }},
-  )
+  if (Array.isArray(message)) {
+    return await threadCollection.updateOne(
+      { _id: threadId },
+      { $push: { messages: { $each: message }}},
+    )
+  }
+  else {
+    return await threadCollection.updateOne(
+      { _id: threadId },
+      { $push: { messages: message }},
+    )
+  }
 }
 
 Thread.create = async function(userId) {
-  const thread = new threadlib.Thread(userId)
   const insertResult = await threadCollection.insertOne({
     userId,
     messages: [],

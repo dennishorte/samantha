@@ -1,23 +1,42 @@
 module.exports = {
   Thread,
-  Message,
+  MessageFactory,
 }
 
-function Message(role, text) {
+function MessageFactory(role, text) {
   return {
     role,
-    text,
+    content: text,
     timestamp: Date.now()
   }
 }
 
-function Thread(userId) {
-  this.userIds = [userId]
-  this.messages = []
+function Thread(data) {
+  this.data = data
 }
 
-Thread.prototype.canAccess = function(user) {
-  return this.userIds.find(id => id === user._id)
+
+////////////////////////////////////////////////////////////////////////////////
+// Getters
+
+Thread.prototype.getId = function() {
+  return this.data._id
+}
+
+Thread.prototype.getMessages = function() {
+  return [...this.data.messages]
+}
+
+Thread.prototype.getUserId = function() {
+  return this.data.userId
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Mutators
+
+Thread.prototype.canAccess = function(userId) {
+  return this.getUserId().equals(userId)
 }
 
 Thread.prototype.addMessage = function(user, message) {
