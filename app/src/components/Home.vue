@@ -1,7 +1,10 @@
 <template>
   <div class="home">
     <Sidebar :threads="threads" />
-    <Chat :thread="threads[0]" @message-input="sendMessage" />
+    <Chat
+      :thread="activeThread"
+      :waitingForResponse="waitingForResponse"
+      @message-input="sendMessage" />
   </div>
 </template>
 
@@ -21,7 +24,14 @@ export default {
     return {
       threads: [this.newThread()],
       user: this.$store.getters['auth/user'],
+      waitingForResponse: false,
     }
+  },
+
+  computed: {
+    activeThread() {
+      return this.threads[0]
+    },
   },
 
   provide() {
@@ -39,6 +49,14 @@ export default {
     },
 
     async sendMessage(text) {
+      this.waitingForResponse = true
+
+      this.activeThread.messages.push({
+        role: 'user',
+        content: text,
+        timestamp: Date.now(),
+      })
+
       const response = await this.$post('/api/message', {
         userId: this.user._id,
         threadId: this.threads[0]._id,
@@ -57,6 +75,8 @@ export default {
         console.log(response)
         alert("didn't get a thread")
       }
+
+      this.waitingForResponse = false
     },
   },
 

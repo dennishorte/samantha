@@ -1,6 +1,6 @@
 <template>
   <div class="chat">
-    <ChatHistory class="max-size" :messages="thread.messages" />
+    <ChatHistory class="max-size" :messages="thread.messages" :waitingForResponse="waitingForResponse" />
     <ChatInput class="min-size" @message-input="messageInput" />
   </div>
 </template>
@@ -20,6 +20,7 @@ export default {
 
   props: {
     thread: Object,
+    waitingForResponse: Boolean,
   },
 
   methods: {
