@@ -3,8 +3,8 @@ import App from '@/App.vue'
 import router from '@/router'
 import store from '@/store'
 
-//import authUtil from '@/modules/auth/util.js'
-//authUtil.initialize()
+import authUtil from '@/modules/auth/util.js'
+authUtil.initialize()
 
 // Global Styles
 import 'bootstrap/dist/css/bootstrap.min.css'

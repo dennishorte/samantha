@@ -7,10 +7,6 @@
 <script>
 export default {
   name: 'app',
-
-  beforeMount() {
-    this.$store.commit('auth/initialize')
-  },
 }
 </script>
 
