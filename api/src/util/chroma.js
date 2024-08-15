@@ -3,13 +3,11 @@ const openai = require('./openai.js')
 
 const client = new ChromaClient()
 
-
-module.exports = {
-  test
-}
+const Chroma = {}
+module.exports = Chroma
 
 
-async function test() {
+Chroma.initializeTestCollection = async function() {
   await client.deleteCollection({ name: 'test_collection' })
 
   await client.createCollection({
@@ -22,27 +20,55 @@ async function test() {
     embeddingFunction: new OpenAiEmbedder(),
   })
 
-  await collection.add({
-    ids: ["id1", "id2", "id3"],
-    metadatas: [
-      {"chapter": "3", "verse": "16"},
-      {"chapter": "3", "verse": "5"},
-      {"chapter": "29", "verse": "11"}
-    ],
-    documents: [
-      'This is an orange',
-      'This is a pineapple',
-      'This is a book',
-    ],
-  })
-
-  const result = await collection.query({
-    nResults: 2, // n_results
-    queryTexts: ["library"], // query_text
-  })
-
-  console.log(result)
+  return new Collection(collection)
 }
 
+
+function Collection(collection) {
+  this.coll = collection
+}
+
+Collection.prototype.findBy = async function(opts) {
+  if (opts.texts) {
+    const result = await this.coll.query({
+      nResults: opts.limit || 2,
+      queryTexts: opts.texts,
+    })
+
+    const output = []
+    for (let i = 0; i < opts.texts.length; i++) {
+      const m = {
+        query: opts.texts[i],
+        matches: []
+      }
+
+      for (let n = 0; n < result.ids[i].length; n++) {
+        const item = {}
+        item.id = result.ids[i][n]
+        item.text = result.documents[i][n]
+        item.distance = result.distances[i][n]
+        m.matches.push(item)
+      }
+
+      output.push(m)
+    }
+
+    return output
+  }
+  else {
+    throw new Error('nothing to find with')
+  }
+}
+
+Collection.prototype.insert = async function(items) {
+  const ids = items.map(x => x.id)
+  const documents = items.map(x => x.document)
+  await this.coll.add({ ids, documents })
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Local classes and functions
+
 function OpenAiEmbedder() {}
-ChromaEmbedder.prototype.generate = openai.embed
+OpenAiEmbedder.prototype.generate = openai.embed
