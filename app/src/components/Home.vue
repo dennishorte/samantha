@@ -66,7 +66,7 @@ export default {
       // Put the updated thread into the first position of the threads list.
       const thread = response.thread
       if (thread) {
-        const updated = this.threads.filter(x => x._id === thread._id)
+        const updated = this.threads.filter(x => x._id !== thread._id)
         updated.unshift(thread)
         this.threads = updated
       }
