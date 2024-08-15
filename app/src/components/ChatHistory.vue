@@ -24,6 +24,24 @@ export default {
     messages: Array,
     waitingForResponse: Boolean,
   },
+
+  methods: {
+    scrollToBottom() {
+      this.$nextTick(() => {
+        const elem = this.$refs.chathistory
+        const last = elem.lastElementChild
+        last.scrollIntoView({ behavior: 'smooth', block: 'end' })
+      })
+    },
+  },
+
+  watch: {
+    messages: {
+      handler() { this.scrollToBottom() },
+      flush: 'post',
+      deep: true,
+    },
+  },
 }
 </script>
 
