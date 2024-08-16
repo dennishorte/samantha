@@ -31,6 +31,13 @@ Thread.prototype.getUserId = function() {
   return this.data.userId
 }
 
+Thread.prototype.getNumTokensApprox = function() {
+  return this
+    .getMessages()
+    .map(m => m.content.split(/\s+/).length)
+    .reduce((acc, x) => acc + x, 0)
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Mutators
