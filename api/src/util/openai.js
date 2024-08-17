@@ -5,6 +5,7 @@ const openai = new OpenAI()
 module.exports = {
   complete,
   embed,
+  summarize,
 }
 
 async function embed(texts) {
@@ -48,4 +49,33 @@ async function complete(context) {
   })
 
   return completion.choices[0]
+}
+
+
+const summarySystemMessage = `Please provide a summary of everything in this conversation. The summary should include all of the major topics and subthemes, and should be at most 500 words long. Also include a list of all of the proper nouns. Please provide the summary in JSON format. Do not wrap the JSON in a code block; reply in plain JSON. An example of a well formatted answer is the following.
+{
+  summary: "This is a summary of this conversation.",
+  keywords: ['Dennis', 'Samantha']
+}
+`
+
+async function summarize(context) {
+  if (!context || !context.length) {
+    throw new Error('empty context')
+  }
+
+  messages = [
+    {
+      "role": "system",
+      "content": summarySystemMessage,
+    },
+    ...context
+  ]
+
+  const completion = await openai.chat.completions.create({
+    messages,
+    model: "gpt-4o-mini",
+  })
+
+  return JSON.parse(completion.choices[0])
 }

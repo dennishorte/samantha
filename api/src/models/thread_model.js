@@ -34,13 +34,36 @@ Thread.append = async function(threadId, message) {
   }
 }
 
+Thread.close = async function(threadId, nextThreadId) {
+  return await threadCollection.updateOne(
+    { _id: threadId },
+    {
+      nextThreadId,
+      closed: true,
+    },
+  )
+}
+
 Thread.create = async function(userId) {
   const insertResult = await threadCollection.insertOne({
     userId,
     messages: [],
+    nextThreadId: null,
+    closed: false,
   })
   if (!insertResult.insertedId) {
     throw new Error('thread creation failed')
   }
   return await Thread.findById(insertResult.insertedId)
+}
+
+Thread.save = async function(thread) {
+  const result = await threadCollection.replaceOne(
+    { _id: thread.getId() },
+    thread.data
+  )
+
+  if (result.matchedCount !== 1) {
+    throw new Error('Failed to save thread')
+  }
 }

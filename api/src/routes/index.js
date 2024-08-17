@@ -1,3 +1,4 @@
+const chroma = require('../util/chroma.js')
 const db = require('../models/db.js')
 const openai = require('../util/openai.js')
 const { MessageFactory, Thread } = require('../util/thread.js')
@@ -61,9 +62,33 @@ async function message(req, res) {
     MessageFactory('assistant', response.content),
   ])
 
+  const updatedThread = new Thread(await db.thread.findById(thread.getId()))
+
+  // Embed the user prompt and response and store them in the vector DB with links to the active thread.
+  const [userEmbed, samEmbed] = openai.embed([text, response.content])
+  chroma.insert([
+    {
+      id: updatedThread._id + (updatedThread.getMessages().length - 2),
+      embedding: userEmbed,
+      metadata: {
+        threadId: updatedThread.getId(),
+      },
+    },
+    {
+      id: updatedThread._id + (updatedThread.getMessages().length - 1),
+      embedding: samEmbed,
+      metadata: {
+        threadId: updatedThread.getId(),
+      },
+    },
+  ])
+
+  // Check if it is time to start a new thread.
+  const newThread = await _maybeStartNewThread(updatedThread)
+
   res.json({
     status: 'success',
-    thread: await db.thread.findById(thread.getId()),
+    thread: newThread.data,
   })
 }
 
@@ -76,6 +101,10 @@ async function threads(req, res) {
     threads,
   })
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Local functions
 
 function _ensureText(text) {
   if (!text) {
@@ -115,4 +144,48 @@ async function _getAssistantResponse(messages) {
     content: response.message.content,
     timestamp: Date.now(),
   }
+}
+
+async function _maybeStartNewThread(thread) {
+  if (thread.getNumTokensApprox() >= 10000) {
+    const newThread = new Thread(await db.thread.create(thread.getUsedId()))
+    await db.thread.close(thread.getId(), newThread.getId())
+    const summaryMessage = await _summarizeThread(thread)
+
+    // Select the end of the conversation
+    const ending = []
+    let tokenCount = 0
+    for (const m of messages.reverse()) {
+      ending.push(m)
+      tokenCount += tokenCountApprox(m.content)
+
+      // Always be sure to get the user message that prompted the assistant response.
+      if (m.role === 'assistant') {
+        continue
+      }
+
+      if (tokenCount >= 500) {
+        break
+      }
+    }
+
+    ending.push(summaryMessage)
+    ending.reverse()
+    newThread.data.messages = ending
+    await db.thread.save(newThread)
+
+    return newThread
+  }
+  else {
+    return thread
+  }
+}
+
+async function _summarizeThread(thread) {
+  // Get a summary of the existing thread.
+  const messages = thread.getOriginalMessages()
+  const summary = await openai.summarize(messages)
+  const summaryMessage = MessageFactory('user', summary)
+  summaryMessage.summary = true
+  return summaryMessage
 }

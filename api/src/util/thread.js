@@ -1,6 +1,7 @@
 module.exports = {
   Thread,
   MessageFactory,
+  tokenCountApprox
 }
 
 function MessageFactory(role, text) {
@@ -32,20 +33,36 @@ Thread.prototype.getUserId = function() {
 }
 
 Thread.prototype.getNumTokensApprox = function() {
+  const numWords = this
+    .getMessages()
+    .map(m => tokenCountApprox(m.content))
+    .reduce((acc, x) => acc + x, 0)
+
+  return numWords * 1.3
+}
+
+thread.prototype.getOriginalMessages = function() {
   return this
     .getMessages()
-    .map(m => m.content.split(/\s+/).length)
-    .reduce((acc, x) => acc + x, 0)
+    .filter(m => !m.summary && !m.carryover)
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Mutators
 
+Thread.prototype.addMessage = function(user, message) {
+  this.messages.push(message)
+}
+
 Thread.prototype.canAccess = function(userId) {
   return this.getUserId().equals(userId)
 }
 
-Thread.prototype.addMessage = function(user, message) {
-  this.messages.push(message)
+
+////////////////////////////////////////////////////////////////////////////////
+// Static functions
+
+function tokenCountApprox(text) {
+  return text.split(/\s+/).length
 }

@@ -12,3 +12,17 @@ test('complete', async () => {
   expect(result.message.role).toBe('assistant')
   expect(typeof result.message.content).toBe('string')
 })
+
+describe('summarize', async () => {
+  test('retries if the wrong format is returned', () => {
+
+  })
+
+  test('throws an error if the wrong format is returned a second time', () => {
+
+  })
+
+  test('throws before calling the model if the context is empty', () => {
+    jest.mock('openai')
+  })
+})
