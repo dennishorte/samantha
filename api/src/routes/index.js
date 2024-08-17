@@ -1,6 +1,6 @@
 const chroma = require('../util/chroma.js')
 const db = require('../models/db.js')
-const openai = require('../util/openai.js')
+const brain = require('../util/brain.js')
 const { MessageFactory, Thread } = require('../util/thread.js')
 
 module.exports = {
@@ -65,7 +65,7 @@ async function message(req, res) {
   const updatedThread = new Thread(await db.thread.findById(thread.getId()))
 
   // Embed the user prompt and response and store them in the vector DB with links to the active thread.
-  const [userEmbed, samEmbed] = openai.embed([text, response.content])
+  const [userEmbed, samEmbed] = brain.embed([text, response.content])
   chroma.insert([
     {
       id: updatedThread._id + (updatedThread.getMessages().length - 2),
@@ -138,7 +138,7 @@ async function _getOrCreateThread(userId, threadId) {
 }
 
 async function _getAssistantResponse(messages) {
-  const response = await openai.complete(messages)
+  const response = await brain.complete(messages)
   return {
     role: 'assistant',
     content: response.message.content,
@@ -184,7 +184,7 @@ async function _maybeStartNewThread(thread) {
 async function _summarizeThread(thread) {
   // Get a summary of the existing thread.
   const messages = thread.getOriginalMessages()
-  const summary = await openai.summarize(messages)
+  const summary = await brain.summarize(messages)
   const summaryMessage = MessageFactory('user', summary)
   summaryMessage.summary = true
   return summaryMessage

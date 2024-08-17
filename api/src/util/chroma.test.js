@@ -22,7 +22,7 @@ async function getTestCollection() {
 
   const collection = await testClient.createCollection({
     name: collectionName,
-    embeddingFunction: new chroma.OpenAiEmbedder(),
+    embeddingFunction: new chroma.Embedder(),
   })
 
   return new chroma.Collection(collection)

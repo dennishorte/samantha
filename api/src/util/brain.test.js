@@ -1,11 +1,11 @@
-const openai = require('./openai.js')
+const brain = require('./brain.js')
 
 test('complete', async () => {
   const messages = [{
     role: 'user',
     content: 'hello',
   }]
-  const result = await openai.complete(messages)
+  const result = await brain.complete(messages)
 
   expect(result.finish_reason).toBe('stop')
   expect(result.message).toBeDefined()
@@ -23,6 +23,5 @@ describe('summarize', async () => {
   })
 
   test('throws before calling the model if the context is empty', () => {
-    jest.mock('openai')
   })
 })

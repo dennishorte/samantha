@@ -1,11 +1,11 @@
 const { ChromaClient } = require("chromadb")
-const openai = require('./openai.js')
+const brain = require('./brain.js')
 
 const client = new ChromaClient()
 
 const Chroma = {
   Collection,
-  OpenAiEmbedder,
+  Embedder,
 }
 module.exports = Chroma
 
@@ -102,5 +102,5 @@ Collection.prototype.insert = async function(items) {
 ////////////////////////////////////////////////////////////////////////////////
 // Local classes and functions
 
-function OpenAiEmbedder() {}
-OpenAiEmbedder.prototype.generate = openai.embed
+function Embedder() {}
+Embedder.prototype.generate = brain.embed
