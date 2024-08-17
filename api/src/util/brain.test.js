@@ -1,5 +1,6 @@
 const brain = require('./brain.js')
 
+
 test('complete', async () => {
   const messages = [{
     role: 'user',
@@ -13,7 +14,7 @@ test('complete', async () => {
   expect(typeof result.message.content).toBe('string')
 })
 
-describe('summarize', async () => {
+describe('summarize', () => {
   test('retries if the wrong format is returned', () => {
 
   })
@@ -22,6 +23,10 @@ describe('summarize', async () => {
 
   })
 
-  test('throws before calling the model if the context is empty', () => {
+  test('throws before calling the model if the context is empty', async () => {
+    const mock = jest.spyOn(brain, '_callCompletionsCreateEndpoint')
+    expect(async () => { await brain.summarize() }).rejects.toThrow()
+    expect(async () => { await brain.summarize([]) }).rejects.toThrow()
+    expect(brain._callCompletionsCreateEndpoint).not.toHaveBeenCalled()
   })
 })

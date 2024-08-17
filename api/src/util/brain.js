@@ -6,6 +6,8 @@ module.exports = {
   complete,
   embed,
   summarize,
+
+  _callCompletionsCreateEndpoint,
 }
 
 async function embed(texts) {
@@ -72,10 +74,14 @@ async function summarize(context) {
     ...context
   ]
 
-  const completion = await openai.chat.completions.create({
+  const completion = await _callCompletionsCreateEndpoint({
     messages,
     model: "gpt-4o-mini",
   })
 
   return JSON.parse(completion.choices[0])
+}
+
+async function _callCompletionsCreateEndpoint(payload) {
+  return await openai.chat.completions.create(payload)
 }
