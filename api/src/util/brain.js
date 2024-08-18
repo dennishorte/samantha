@@ -1,17 +1,18 @@
-const OpenAI = require("openai")
-const openai = new OpenAI()
+const openai = require("openai")
 
 
 module.exports = {
-  complete,
-  embed,
-  summarize,
-
-  _callCompletionsCreateEndpoint,
+  Brain,
 }
 
-async function embed(texts) {
-  const embedding = await openai.embeddings.create({
+
+function Brain() {
+  this.openai = new openai()
+}
+
+
+Brain.prototype.embed = async function(texts) {
+  const embedding = await this.openai.embeddings.create({
     model: "text-embedding-3-small",
     input: texts,
     encoding_format: "float",
@@ -39,13 +40,13 @@ async function embed(texts) {
      finish_reason: 'stop'
    }
  */
-async function complete(context) {
+Brain.prototype.complete = async function(context) {
   messages = [
     {"role": "system", "content": "You are an effecient program manager and personal assistant."},
     ...context
   ]
 
-  const completion = await openai.chat.completions.create({
+  const completion = await this.openai.chat.completions.create({
     messages,
     model: "gpt-4o-mini",
   })
@@ -61,7 +62,7 @@ const summarySystemMessage = `Please provide a summary of everything in this con
 }
 `
 
-async function summarize(context) {
+Brain.prototype.summarize = async function(context) {
   if (!context || !context.length) {
     throw new Error('empty context')
   }
@@ -74,14 +75,17 @@ async function summarize(context) {
     ...context
   ]
 
-  const completion = await _callCompletionsCreateEndpoint({
+  const completion = await this.openai.chat.completions.create({
     messages,
     model: "gpt-4o-mini",
   })
 
-  return JSON.parse(completion.choices[0])
-}
+  const result = JSON.parse(completion.choices[0].message.content)
 
-async function _callCompletionsCreateEndpoint(payload) {
-  return await openai.chat.completions.create(payload)
+  if (!result.summary || !(typeof result.summary === 'string') || !result.keywords || !Array.isArray(result.keywords)) {
+    throw new Error('Invalid response format for summary')
+  }
+
+  completion.choices[0].message.content = result
+  return completion.choices[0]
 }
