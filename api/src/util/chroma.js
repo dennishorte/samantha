@@ -1,15 +1,30 @@
 const { ChromaClient } = require("chromadb")
 const { Brain } = require('./brain.js')
+const Embedder = require('./chroma_embedder.js')
 
 const brain = new Brain()
 const client = new ChromaClient()
 
+
+////////////////////////////////////////////////////////////////////////////////
+// exports
 const Chroma = {
   Collection,
-  Embedder,
+
+  getThreadCollection,
 }
 module.exports = Chroma
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Implementations
+
+async function getThreadCollection() {
+  return new Collection(await client.getCollection({
+    name: 'thread',
+    embedder: new Embedder(),
+  }))
+}
 
 function Collection(collection) {
   this.coll = collection
@@ -71,7 +86,7 @@ Collection.prototype.insert = async function(items) {
   insertData.ids = items
     .map(x => x.id)
     .filter(x => Boolean(x))
-  if (insertData.ids.length != count) {
+  if (insertData.ids.length !== count) {
     throw new Error('Insufficient or invalid ids: ' + insertData.ids)
   }
 
@@ -79,7 +94,7 @@ Collection.prototype.insert = async function(items) {
     insertData.documents = items
       .map(x => x.document.trim())
       .filter(x => Boolean(x))
-    if (insertData.documents.length != count) {
+    if (insertData.documents.length !== count) {
       throw new Error('Insufficient or invalid documents')
     }
   }
@@ -98,10 +113,3 @@ Collection.prototype.insert = async function(items) {
 
   await this.coll.add(insertData)
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Local classes and functions
-
-function Embedder() {}
-Embedder.prototype.generate = brain.embed

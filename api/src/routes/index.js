@@ -67,17 +67,18 @@ async function message(req, res) {
   const updatedThread = new Thread(await db.thread.findById(thread.getId()))
 
   // Embed the user prompt and response and store them in the vector DB with links to the active thread.
-  const [userEmbed, samEmbed] = brain.embed([text, response.content])
-  chroma.insert([
+  const [userEmbed, samEmbed] = await brain.embed([text, response.content])
+  const coll = await chroma.getThreadCollection()
+  await coll.insert([
     {
-      id: updatedThread._id + (updatedThread.getMessages().length - 2),
+      id: updatedThread.getId().toString() + '_' + (updatedThread.getMessages().length - 2),
       embedding: userEmbed,
       metadata: {
         threadId: updatedThread.getId(),
       },
     },
     {
-      id: updatedThread._id + (updatedThread.getMessages().length - 1),
+      id: updatedThread.getId().toString() + '_' + (updatedThread.getMessages().length - 1),
       embedding: samEmbed,
       metadata: {
         threadId: updatedThread.getId(),
