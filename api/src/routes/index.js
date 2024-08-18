@@ -1,7 +1,9 @@
 const chroma = require('../util/chroma.js')
 const db = require('../models/db.js')
-const brain = require('../util/brain.js')
+const { Brain } = require('../util/brain.js')
 const { MessageFactory, Thread } = require('../util/thread.js')
+
+const brain = new Brain()
 
 module.exports = {
   login,
