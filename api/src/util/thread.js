@@ -41,7 +41,7 @@ Thread.prototype.getNumTokensApprox = function() {
   return numWords * 1.3
 }
 
-thread.prototype.getOriginalMessages = function() {
+Thread.prototype.getOriginalMessages = function() {
   return this
     .getMessages()
     .filter(m => !m.summary && !m.carryover)

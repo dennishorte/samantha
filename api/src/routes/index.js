@@ -96,7 +96,6 @@ async function message(req, res) {
 
 async function threads(req, res) {
   const threads = await db.thread.findByUserId(req.body.userId)
-  console.log(threads)
 
   res.json({
     status: 'success',
