@@ -1,7 +1,7 @@
 const chroma = require('../util/chroma.js')
 const db = require('../models/db.js')
 const { Brain } = require('../util/brain.js')
-const { MessageFactory, Thread } = require('../util/thread.js')
+const threadlib = require('../util/thread.js')
 
 const brain = new Brain()
 
@@ -54,17 +54,17 @@ async function message(req, res) {
   const text = _ensureText(req.body.text)
   const thread = await _getOrCreateThread(req.body.userId, req.body.threadId)
 
-  const userMessage = MessageFactory('user', text)
+  const userMessage = threadlib.MessageFactory('user', text)
   const context = [...thread.getMessages(), userMessage]
   const response = await _getAssistantResponse(context)
 
   // Record the conversation
   await db.thread.append(thread.getId(), [
     userMessage,
-    MessageFactory('assistant', response.content),
+    threadlib.MessageFactory('assistant', response.content),
   ])
 
-  const updatedThread = new Thread(await db.thread.findById(thread.getId()))
+  const updatedThread = new threadlib.Thread(await db.thread.findById(thread.getId()))
 
   // Embed the user prompt and response and store them in the vector DB with links to the active thread.
   const [userEmbed, samEmbed] = await brain.embed([text, response.content])
@@ -86,8 +86,9 @@ async function message(req, res) {
     },
   ])
 
-  // Check if it is time to start a new thread.
-  const newThread = await _maybeStartNewThread(updatedThread)
+  // Check if it is time to start a new threadlib.
+  // const newThread = await _maybeStartNewThread(updatedThread)
+  const newThread = updatedThread
 
   res.json({
     status: 'success',
@@ -132,7 +133,7 @@ async function _getOrCreateThread(userId, threadId) {
     data = await db.thread.create(userId)
   }
 
-  const thread = new Thread(data)
+  const thread = new threadlib.Thread(data)
   if (!thread.canAccess(userId)) {
     throw new Error('not authorized')
   }
@@ -150,7 +151,7 @@ async function _getAssistantResponse(messages) {
 
 async function _maybeStartNewThread(thread) {
   if (thread.getNumTokensApprox() >= 10000) {
-    const newThread = new Thread(await db.thread.create(thread.getUserId()))
+    const newThread = new threadlib.Thread(await db.thread.create(thread.getUserId()))
     await db.thread.close(thread.getId(), newThread.getId())
     const summaryMessage = await _summarizeThread(thread)
 
@@ -159,7 +160,7 @@ async function _maybeStartNewThread(thread) {
     let tokenCount = 0
     for (const m of messages.reverse()) {
       ending.push(m)
-      tokenCount += tokenCountApprox(m.content)
+      tokenCount += threadlib.tokenCountApprox(m.content)
 
       // Always be sure to get the user message that prompted the assistant response.
       if (m.role === 'assistant') {
@@ -187,7 +188,7 @@ async function _summarizeThread(thread) {
   // Get a summary of the existing thread.
   const messages = thread.getOriginalMessages()
   const summary = await brain.summarize(messages)
-  const summaryMessage = MessageFactory('user', summary)
+  const summaryMessage = threadlib.MessageFactory('user', summary)
   summaryMessage.summary = true
   return summaryMessage
 }

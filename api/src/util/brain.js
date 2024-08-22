@@ -1,4 +1,6 @@
 const openai = require("openai")
+const { zodResponseFormat } = require("openai/helpers/zod")
+const { z } = require("zod")
 
 
 module.exports = {
@@ -62,6 +64,11 @@ const summarySystemMessage = `Please provide a summary of everything in this con
 }
 `
 
+const SummarizationResponse = z.object({
+  keywords: z.array(z.string()),
+  summary: z.string(),
+})
+
 Brain.prototype.summarize = async function(context) {
   if (!context || !context.length) {
     throw new Error('empty context')
@@ -78,10 +85,14 @@ Brain.prototype.summarize = async function(context) {
   const completion = await this.openai.chat.completions.create({
     messages,
     model: "gpt-4o-mini",
+    response_format: zodResponseFormat(SummarizationResponse, 'summary'),
   })
 
+  console.log(completion.choices[0].message)
+
+  let result
   try {
-    const result = JSON.parse(completion.choices[0].message.content)
+    result = JSON.parse(completion.choices[0].message.content)
   }
   catch (e) {
     console.log(completion.choices[0].message)

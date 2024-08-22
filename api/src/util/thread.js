@@ -1,6 +1,7 @@
 module.exports = {
   Thread,
   MessageFactory,
+  NewThreadData,
   tokenCountApprox
 }
 
@@ -14,6 +15,18 @@ function MessageFactory(role, text) {
 
 function Thread(data) {
   this.data = data
+}
+
+function NewThreadData(data) {
+  const defaults = {
+    userId: null,
+    messages: [],
+    nextThreadId: null,
+    closed: false,
+    closedTimestamp: null,
+  }
+
+  return Object.assign(defaults, data)
 }
 
 
