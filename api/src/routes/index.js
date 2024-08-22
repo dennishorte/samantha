@@ -150,7 +150,7 @@ async function _getAssistantResponse(messages) {
 
 async function _maybeStartNewThread(thread) {
   if (thread.getNumTokensApprox() >= 10000) {
-    const newThread = new Thread(await db.thread.create(thread.getUsedId()))
+    const newThread = new Thread(await db.thread.create(thread.getUserId()))
     await db.thread.close(thread.getId(), newThread.getId())
     const summaryMessage = await _summarizeThread(thread)
 

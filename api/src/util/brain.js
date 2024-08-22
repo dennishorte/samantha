@@ -80,7 +80,13 @@ Brain.prototype.summarize = async function(context) {
     model: "gpt-4o-mini",
   })
 
-  const result = JSON.parse(completion.choices[0].message.content)
+  try {
+    const result = JSON.parse(completion.choices[0].message.content)
+  }
+  catch (e) {
+    console.log(completion.choices[0].message)
+    throw e
+  }
 
   if (!result.summary || !(typeof result.summary === 'string') || !result.keywords || !Array.isArray(result.keywords)) {
     throw new Error('Invalid response format for summary')

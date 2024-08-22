@@ -38,8 +38,10 @@ Thread.close = async function(threadId, nextThreadId) {
   return await threadCollection.updateOne(
     { _id: threadId },
     {
-      nextThreadId,
-      closed: true,
+      $set: {
+        nextThreadId,
+        closed: true,
+      },
     },
   )
 }
