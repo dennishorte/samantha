@@ -1,8 +1,7 @@
 const { ChromaClient } = require("chromadb")
-const { Brain } = require('./brain.js')
+const brain = require('./brain.js')
 const Embedder = require('./chroma_embedder.js')
 
-const brain = new Brain()
 const client = new ChromaClient()
 
 

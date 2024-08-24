@@ -1,20 +1,16 @@
-const openai = require("openai")
+const OpenAI = require("openai")
 const { zodResponseFormat } = require("openai/helpers/zod")
 const { z } = require("zod")
 
-
-module.exports = {
-  Brain,
-}
+const openai = new OpenAI()
 
 
-function Brain() {
-  this.openai = new openai()
-}
+const Brain = {}
+module.exports = Brain
 
 
-Brain.prototype.embed = async function(texts) {
-  const embedding = await this.openai.embeddings.create({
+Brain.embed = async function(texts) {
+  const embedding = await Brain._getEmbedding({
     model: "text-embedding-3-small",
     input: texts,
     encoding_format: "float",
@@ -42,13 +38,13 @@ Brain.prototype.embed = async function(texts) {
      finish_reason: 'stop'
    }
  */
-Brain.prototype.complete = async function(context) {
+Brain.complete = async function(context) {
   messages = [
     {"role": "system", "content": "You are an effecient program manager and personal assistant."},
     ...context
   ]
 
-  const completion = await this.openai.chat.completions.create({
+  const completion = await Brain._getChatCompletion({
     messages,
     model: "gpt-4o-mini",
   })
@@ -69,7 +65,7 @@ const SummarizationResponse = z.object({
   summary: z.string(),
 })
 
-Brain.prototype.summarize = async function(context) {
+Brain.summarize = async function(context) {
   if (!context || !context.length) {
     throw new Error('empty context')
   }
@@ -82,20 +78,17 @@ Brain.prototype.summarize = async function(context) {
     ...context
   ]
 
-  const completion = await this.openai.chat.completions.create({
+  const completion = await Brain._getChatCompletion({
     messages,
     model: "gpt-4o-mini",
     response_format: zodResponseFormat(SummarizationResponse, 'summary'),
   })
-
-  console.log(completion.choices[0].message)
 
   let result
   try {
     result = JSON.parse(completion.choices[0].message.content)
   }
   catch (e) {
-    console.log(completion.choices[0].message)
     throw e
   }
 
@@ -105,4 +98,12 @@ Brain.prototype.summarize = async function(context) {
 
   completion.choices[0].message.content = result
   return completion.choices[0]
+}
+
+Brain._getEmbedding = async function(body) {
+  return await openai.embeddings.create(body)
+}
+
+Brain._getChatCompletion = async function(body) {
+  return await openai.chat.completions.create(body)
 }

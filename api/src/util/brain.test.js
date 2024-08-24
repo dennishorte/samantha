@@ -1,8 +1,11 @@
-const { Brain } = require('./brain.js')
+const brain = require('./brain.js')
+
+afterEach(() => {
+  jest.clearAllMocks()
+})
 
 test('mock is working', async () => {
-  const brain = new Brain()
-  const mock = jest.spyOn(brain.openai.chat.completions, 'create')
+  const mock = jest.spyOn(brain, '_getChatCompletion')
 
   try {
     await brain.complete([{ role: 'user', content: 'hello' }])
@@ -19,8 +22,6 @@ describe('complete', () => {
   })
 
   test.skip('call actual api', async () => {
-    const brain = new Brain()
-
     const messages = [{
       role: 'user',
       content: 'hello',
@@ -37,9 +38,8 @@ describe('complete', () => {
 
 describe('summarize', () => {
   test('throws if the returned value is not JSON', async () => {
-    const brain = new Brain()
     const mock = jest
-      .spyOn(brain.openai.chat.completions, 'create')
+      .spyOn(brain, '_getChatCompletion')
       .mockResolvedValue({ choices: [{ message: { content: 'bad response' } }] })
 
     await expect(async () => { await brain.summarize([{ role: 'user', content: 'hello' }]) })
@@ -57,9 +57,8 @@ describe('summarize', () => {
   ]
 
   test.each(badResponses)('throws if the generated JSON is missing required fields', async (msg) => {
-    const brain = new Brain()
     const mock = jest
-      .spyOn(brain.openai.chat.completions, 'create')
+      .spyOn(brain, '_getChatCompletion')
       .mockResolvedValueOnce({ choices: [{ message: { content: JSON.stringify(msg) } }] })
 
     await expect(async () => { await brain.summarize([{ role: 'user', content: 'hello' }]) })
@@ -70,9 +69,7 @@ describe('summarize', () => {
   })
 
   test('throws before calling the model if the context is empty', async () => {
-    const brain = new Brain()
-    const mock = jest
-      .spyOn(brain.openai.chat.completions, 'create')
+    const mock = jest.spyOn(brain, '_getChatCompletion')
     await expect(async () => { await brain.summarize() }).rejects.toThrow('empty context')
     await expect(async () => { await brain.summarize([]) }).rejects.toThrow('empty context')
     expect(mock).not.toHaveBeenCalled()
