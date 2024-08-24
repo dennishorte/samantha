@@ -14,7 +14,7 @@ test('mock is working', async () => {
 
 
 describe('complete', () => {
-  test('throws error if the response is missing required fields', async () => {
+  test.skip('throws error if the response is missing required fields', async () => {
 
   })
 
