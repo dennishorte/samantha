@@ -47,7 +47,7 @@ Thread.close = async function(threadId, nextThreadId) {
 }
 
 Thread.create = async function(userId) {
-  const data = threadlib.NewThreadData({ userId })
+  const data = threadlib.threadDataFactory({ userId })
   const insertResult = await threadCollection.insertOne(data)
   if (!insertResult.insertedId) {
     throw new Error('thread creation failed')

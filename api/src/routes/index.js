@@ -150,6 +150,9 @@ async function _getAssistantResponse(messages) {
 
 async function _maybeStartNewThread(thread) {
   if (thread.getNumTokensApprox() >= 10000) {
+    throw new Error('not implemented')
+
+
     const newThread = new threadlib.Thread(await db.thread.create(thread.getUserId()))
     await db.thread.close(thread.getId(), newThread.getId())
     const summaryMessage = await _summarizeThread(thread)
@@ -181,13 +184,4 @@ async function _maybeStartNewThread(thread) {
   else {
     return thread
   }
-}
-
-async function _summarizeThread(thread) {
-  // Get a summary of the existing thread.
-  const messages = thread.getOriginalMessages()
-  const summary = await brain.summarize(messages)
-  const summaryMessage = threadlib.MessageFactory('user', summary)
-  summaryMessage.summary = true
-  return summaryMessage
 }

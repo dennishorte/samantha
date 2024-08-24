@@ -92,12 +92,18 @@ Brain.summarize = async function(context) {
     throw e
   }
 
-  if (!result.summary || !(typeof result.summary === 'string') || !result.keywords || !Array.isArray(result.keywords)) {
+  if (
+    !result.summary
+    || !(typeof result.summary === 'string')
+    || !result.keywords
+    || !Array.isArray(result.keywords)
+  ) {
     throw new Error('Invalid response format for summary')
   }
 
-  completion.choices[0].message.content = result
-  return completion.choices[0]
+  result.keywords = result.keywords.map(x => x.toLowerCase())
+
+  return result
 }
 
 Brain._getEmbedding = async function(body) {
