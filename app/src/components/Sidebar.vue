@@ -17,12 +17,7 @@ export default {
 
   methods: {
     threadName(thread) {
-      if (thread.messages.length === 0) {
-        return 'new thread'
-      }
-      else {
-        return thread.messages[0].content.substring(0, 10)
-      }
+      return thread.name
     },
   },
 }
