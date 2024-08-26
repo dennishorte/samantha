@@ -14,8 +14,10 @@ const mock = jest
 
 
 function longTestThreadFixture() {
-  const thread = new threadlib.Thread(threadlib.threadDataFactory())
-  thread.setName('stm-1')
+  const thread = new threadlib.Thread(threadlib.threadDataFactory({
+    name: 'stm-1',
+    userId: 'test-user',
+  }))
   return thread
 }
 
@@ -72,5 +74,12 @@ describe('close', () => {
     expect(messages[1].summary).toBe(true)
     expect(messages[0].content).toBe('Create a summary of our recent conversation.')
     expect(messages[1].content).toBe(loremIpsum)
+  })
+
+  test('new thread has the same userId as the prev thread', async () => {
+    const thread = longTestThreadFixture()
+    const { next } = await thread.close()
+
+    expect(next.userId).toBe(thread.userId)
   })
 })
