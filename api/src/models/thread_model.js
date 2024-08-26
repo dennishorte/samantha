@@ -46,18 +46,6 @@ Thread.append = async function(threadId, message) {
   }
 }
 
-Thread.close = async function(threadId, nextThreadId) {
-  return await threadCollection.updateOne(
-    { _id: threadId },
-    {
-      $set: {
-        nextThreadId,
-        closed: true,
-      },
-    },
-  )
-}
-
 Thread.create = async function(userId, name='new thread') {
   const data = threadlib.threadDataFactory({ userId, name })
   const insertResult = await threadCollection.insertOne(data)
@@ -67,10 +55,18 @@ Thread.create = async function(userId, name='new thread') {
   return await Thread.findById(insertResult.insertedId)
 }
 
+Thread.createFrom = async function(thread) {
+  const insertResult = await threadCollection.insertOne(thread.data)
+  if (!insertResult.insertedId) {
+    throw new Error('thread creation failed')
+  }
+  return await Thread.findById(insertResult.insertedId)
+}
+
 Thread.save = async function(thread) {
   const result = await threadCollection.replaceOne(
     { _id: thread.getId() },
-    thread.data
+    thread.data,
   )
 
   if (result.matchedCount !== 1) {

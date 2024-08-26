@@ -146,12 +146,12 @@ async function _getAssistantResponse(messages) {
 
 async function _maybeStartNewThread(thread) {
   if (thread.getNumTokensApprox() >= 10000) {
-    /* const { prev, next } = await thread.close()
+    const { prev, next } = await thread.close()
 
-     * console.log(next)
-     * console.log(next.getMessages())
-     */
-    return thread
+    await db.thread.save(prev)
+    const nextSaved = await db.thread.createFrom(next)
+
+    return new threadlib.Thread(nextSaved)
   }
   else {
     return thread

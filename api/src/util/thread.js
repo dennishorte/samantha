@@ -133,24 +133,22 @@ Thread.prototype.setChild = function(thread) {
    This function does not update the database.
  */
 Thread.prototype.close = async function() {
-  this.setClosed(true)
-  this.setClosedTimestamp(Date.now())
-
-  const newThread = new Thread(threadDataFactory())
-
+  // Create the next thread.
   const summaryRequest = MessageFactory('user', 'Create a summary of our recent conversation.')
   const summaryResponse = await this._summarizeThread(this)
   summaryRequest.summary = true
   summaryResponse.summary = true
-  newThread.addMessage(summaryRequest)
-  newThread.addMessage(summaryResponse)
 
-  newThread.setParent(this)
-  this.setChild(newThread)
+  const newThread = new Thread(threadDataFactory({
+    userId: this.getUserId(),
+    name: _nextName(this),
+    messages: [summaryRequest, summaryResponse],
+    parentId: this.getId()
+  }))
 
-  const nameTokens = this.getName().split('-')
-  const counter = parseInt(nameTokens.pop())
-  newThread.setName(nameTokens.join('-') + '-' + (counter + 1))
+  // Update this thread to the closed state.
+  this.setClosed(true)
+  this.setClosedTimestamp(Date.now())
 
   return {
     prev: this,
@@ -176,4 +174,10 @@ Thread.prototype._summarizeThread = async function(thread) {
 
 function tokenCountApprox(text) {
   return text.split(/\s+/).length
+}
+
+function _nextName(thread) {
+  const nameTokens = thread.getName().split('-')
+  const counter = parseInt(nameTokens.pop())
+  return nameTokens.join('-') + '-' + (counter + 1)
 }
