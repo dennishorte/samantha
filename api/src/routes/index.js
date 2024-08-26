@@ -1,4 +1,5 @@
 const chroma = require('../util/chroma.js')
+const context = require('../util/context.js')
 const db = require('../models/db.js')
 const brain = require('../util/brain.js')
 const threadlib = require('../util/thread.js')
@@ -51,42 +52,36 @@ async function login(req, res) {
 
 async function message(req, res) {
   const text = _ensureText(req.body.text)
-  const thread = await _getOrCreateThread(req.body.userId, req.body.threadId)
+  const stm = await _getLatestStm(req.body.userId)
+  stm.addMessage(threadlib.MessageFactory('user', text))
 
-  const userMessage = threadlib.MessageFactory('user', text)
-  const context = [...thread.getMessages(), userMessage]
-  const response = await _getAssistantResponse(context)
+  const response = await _getAssistantResponse(stm.getMessages())
+  stm.addMessage(threadlib.MessageFactory('assistant', response.content))
 
-  // Record the conversation
-  await db.thread.append(thread.getId(), [
-    userMessage,
-    threadlib.MessageFactory('assistant', response.content),
-  ])
-
-  const updatedThread = new threadlib.Thread(await db.thread.findById(thread.getId()))
+  db.thread.save(stm)
 
   // Embed the user prompt and response and store them in the vector DB with links to the active thread.
   const [userEmbed, samEmbed] = await brain.embed([text, response.content])
   const coll = await chroma.getThreadCollection()
   await coll.insert([
     {
-      id: updatedThread.getId().toString() + '_' + (updatedThread.getMessages().length - 2),
+      id: stm.getId().toString() + '_' + (stm.getMessages().length - 2),
       embedding: userEmbed,
       metadata: {
-        threadId: updatedThread.getId(),
+        threadId: stm.getId(),
       },
     },
     {
-      id: updatedThread.getId().toString() + '_' + (updatedThread.getMessages().length - 1),
+      id: stm.getId().toString() + '_' + (stm.getMessages().length - 1),
       embedding: samEmbed,
       metadata: {
-        threadId: updatedThread.getId(),
+        threadId: stm.getId(),
       },
     },
   ])
 
   // Check if it is time to start a new threadlib.
-  const newThread = await _maybeStartNewThread(updatedThread)
+  const newThread = await _maybeStartNewThread(stm)
 
   res.json({
     status: 'success',
@@ -95,11 +90,11 @@ async function message(req, res) {
 }
 
 async function threads(req, res) {
-  const threads = await db.thread.findByUserId(req.body.userId)
+  const latest = await context.latest(req.body.userId)
 
   res.json({
     status: 'success',
-    threads,
+    threads: latest
   })
 }
 
@@ -121,14 +116,16 @@ function _ensureText(text) {
   return text
 }
 
-async function _getOrCreateThread(userId, threadId) {
+async function _getLatestStm(userId) {
+  const existing = await db.thread.findLatestStms(userId, 1)
+
   let data
 
-  if (threadId) {
-    data = await db.thread.findById(threadId)
+  if (existing.length > 0) {
+    data = existing[0]
   }
   else {
-    data = await db.thread.create(userId)
+    data = threadlib.threadDataFactory({ userId, name: 'stm-1' })
   }
 
   const thread = new threadlib.Thread(data)

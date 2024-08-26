@@ -22,10 +22,12 @@ function Thread(data) {
 
 function threadDataFactory(data={}) {
   const defaults = {
+    userId: null,
     name: 'new thread',
     messages: [],
     nextThreadId: null,
     closed: false,
+    createdTimestamp: Date.now(),
     closedTimestamp: null,
     parentId: null,
     childId: null,

@@ -5,7 +5,9 @@ const database = databaseClient.db('sam')
 const threadCollection = database.collection('thread')
 
 
-const Thread = {}
+const Thread = {
+  coll: threadCollection
+}
 module.exports = Thread
 
 
@@ -17,6 +19,16 @@ Thread.findByUserId = async function(userId) {
   const cursor = await threadCollection.find({ userId })
   const threads = await cursor.toArray()
   return threads
+}
+
+Thread.findLatestStms = async function(userId, count) {
+  const cursor = await threadCollection
+    .find({ userId })
+    .sort({ createdTimestamp: 1 })
+    .limit(count)
+  const threads = await cursor.toArray()
+  return threads
+
 }
 
 Thread.append = async function(threadId, message) {
@@ -46,8 +58,8 @@ Thread.close = async function(threadId, nextThreadId) {
   )
 }
 
-Thread.create = async function(userId) {
-  const data = threadlib.threadDataFactory({ userId })
+Thread.create = async function(userId, name='new thread') {
+  const data = threadlib.threadDataFactory({ userId, name })
   const insertResult = await threadCollection.insertOne(data)
   if (!insertResult.insertedId) {
     throw new Error('thread creation failed')
