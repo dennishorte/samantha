@@ -1,4 +1,5 @@
 const db = require('../models/db.js')
+const threadlib = require('./thread.js')
 
 
 const Context = {}
@@ -12,5 +13,6 @@ Context.assemble = function(threads) {
 
 
 Context.latest = async function(userId) {
-  return db.thread.findLatestStms(userId, 5)
+  const data = await db.thread.findLatestStms(userId, 5)
+  return data.map(d => new threadlib.Thread(d))
 }

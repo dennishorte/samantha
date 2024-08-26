@@ -31,7 +31,7 @@ export default {
 
   computed: {
     activeThread() {
-      return this.threads[this.activeThreadIndex]
+      return this.threads[this.threads.length - 1]
     },
   },
 
@@ -64,19 +64,7 @@ export default {
         text,
       })
 
-      // Put the updated thread into the first position of the threads list.
-      const thread = response.thread
-      if (thread) {
-        const updated = this.threads.filter(x => x._id !== thread._id)
-        updated.unshift(thread)
-        this.threads = updated
-      }
-      else {
-        console.log('no thread: ' + thread)
-        console.log(response)
-        alert("didn't get a thread")
-      }
-
+      this.threads = response.threads
       this.waitingForResponse = false
     },
 

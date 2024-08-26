@@ -30,7 +30,9 @@ export default {
       this.$nextTick(() => {
         const elem = this.$refs.chathistory
         const last = elem.lastElementChild
-        last.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        if (last) {
+          last.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        }
       })
     },
   },
