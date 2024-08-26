@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <div v-for="thread in threads" class="thread-name">
+    <div v-for="thread in threads" class="thread-name" @click="show(thread._id)">
       {{ threadName(thread) }}
     </div>
   </div>
@@ -16,6 +16,10 @@ export default {
   },
 
   methods: {
+    show(threadId) {
+      this.$emit('show-thread', { threadId })
+    },
+
     threadName(thread) {
       return thread.name
     },

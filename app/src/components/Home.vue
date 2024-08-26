@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Sidebar :threads="threads" />
+    <Sidebar :threads="threads" @show-thread="setActiveThread" />
     <Chat
       :thread="activeThread"
       :waitingForResponse="waitingForResponse"
@@ -22,6 +22,7 @@ export default {
 
   data() {
     return {
+      activeThreadIndex: 0,
       threads: [this.newThread()],
       user: this.$store.getters['auth/user'],
       waitingForResponse: false,
@@ -30,7 +31,7 @@ export default {
 
   computed: {
     activeThread() {
-      return this.threads[0]
+      return this.threads[this.activeThreadIndex]
     },
   },
 
@@ -78,6 +79,16 @@ export default {
 
       this.waitingForResponse = false
     },
+
+    setActiveThread({ threadId }) {
+      const index = this.threads.findIndex(x => x._id === threadId)
+      if (index === -1) {
+        alert('invalid thread id')
+      }
+      else {
+        this.activeThreadIndex = index
+      }
+    },
   },
 
   async mounted() {
@@ -85,6 +96,7 @@ export default {
     if (response.status === 'success') {
       if (response.threads.length > 0) {
         this.threads = response.threads
+        this.activeThreadIndex = this.threads.length - 1
       }
     }
     else {
