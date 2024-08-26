@@ -86,8 +86,7 @@ async function message(req, res) {
   ])
 
   // Check if it is time to start a new threadlib.
-  // const newThread = await _maybeStartNewThread(updatedThread)
-  const newThread = updatedThread
+  const newThread = await _maybeStartNewThread(updatedThread)
 
   res.json({
     status: 'success',
@@ -150,36 +149,12 @@ async function _getAssistantResponse(messages) {
 
 async function _maybeStartNewThread(thread) {
   if (thread.getNumTokensApprox() >= 10000) {
-    throw new Error('not implemented')
+    /* const { prev, next } = await thread.close()
 
-
-    const newThread = new threadlib.Thread(await db.thread.create(thread.getUserId()))
-    await db.thread.close(thread.getId(), newThread.getId())
-    const summaryMessage = await _summarizeThread(thread)
-
-    // Select the end of the conversation
-    const ending = []
-    let tokenCount = 0
-    for (const m of messages.reverse()) {
-      ending.push(m)
-      tokenCount += threadlib.tokenCountApprox(m.content)
-
-      // Always be sure to get the user message that prompted the assistant response.
-      if (m.role === 'assistant') {
-        continue
-      }
-
-      if (tokenCount >= 500) {
-        break
-      }
-    }
-
-    ending.push(summaryMessage)
-    ending.reverse()
-    newThread.data.messages = ending
-    await db.thread.save(newThread)
-
-    return newThread
+     * console.log(next)
+     * console.log(next.getMessages())
+     */
+    return thread
   }
   else {
     return thread
