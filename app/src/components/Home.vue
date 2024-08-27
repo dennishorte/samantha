@@ -1,6 +1,10 @@
 <template>
   <div class="home">
-    <Sidebar :threads="threads" @show-thread="setActiveThread" />
+    <Sidebar
+      :threads="threads"
+      :topics="topics"
+      @show-thread="setActiveThread"
+    />
     <Chat
       :thread="activeThread"
       :waitingForResponse="waitingForResponse"
@@ -24,6 +28,7 @@ export default {
     return {
       activeThreadIndex: 0,
       threads: [this.newThread()],
+      topics: [],
       user: this.$store.getters['auth/user'],
       waitingForResponse: false,
     }

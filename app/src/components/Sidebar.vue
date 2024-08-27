@@ -3,6 +3,12 @@
     <div v-for="thread in threads" class="thread-name" @click="show(thread._id)">
       {{ threadName(thread) }}
     </div>
+
+    <hr />
+
+    <div v-for="topic in topics" class="topic-name">
+      {{ topicName(topic) }}
+    </div>
   </div>
 </template>
 
@@ -13,6 +19,7 @@ export default {
 
   props: {
     threads: Array,
+    topics: Array,
   },
 
   methods: {
@@ -23,6 +30,10 @@ export default {
     threadName(thread) {
       return thread.name
     },
+
+    topicName(topic) {
+      return topic.name
+    }
   },
 }
 </script>
