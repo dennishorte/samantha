@@ -31,7 +31,7 @@ export default {
 
   computed: {
     activeThread() {
-      return this.threads[this.threads.length - 1]
+      return this.threads[this.activeThreadIndex]
     },
   },
 
@@ -64,7 +64,7 @@ export default {
         text,
       })
 
-      this.threads = response.threads
+      this.setThreads(response.threads)
       this.waitingForResponse = false
     },
 
@@ -77,15 +77,17 @@ export default {
         this.activeThreadIndex = index
       }
     },
+
+    setThreads(threads) {
+      this.threads = threads
+      this.activeThreadIndex = this.threads.length - 1
+    }
   },
 
   async mounted() {
     const response = await this.$post('/api/threads', { userId: this.user._id })
     if (response.status === 'success') {
-      if (response.threads.length > 0) {
-        this.threads = response.threads
-        this.activeThreadIndex = this.threads.length - 1
-      }
+      this.setThreads(response.threads)
     }
     else {
       throw new Error('error fetching threads: ' + response.message)
