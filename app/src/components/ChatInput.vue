@@ -3,7 +3,8 @@
     <textarea
       class="form-control"
       v-model="text"
-      @keyup.enter="sendMessage"
+      @keyup.enter.exact.prevent="sendMessage"
+      @keyup.enter.shift.exact.prevent="addNewline"
       placeholder="message"
       rows="1"
     />
@@ -24,6 +25,10 @@ export default {
   },
 
   methods: {
+    addNewline() {
+      this.text += '\n'
+    },
+
     sendMessage() {
       this.$emit('message-input', this.text)
       this.text = ''
