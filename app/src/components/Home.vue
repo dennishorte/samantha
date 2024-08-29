@@ -4,15 +4,36 @@
       :threads="threads"
       :topics="topics"
       @show-thread="setActiveThread"
+      @process-thread="processThread"
     />
     <Chat
       :thread="activeThread"
       :waitingForResponse="waitingForResponse"
-      @message-input="sendMessage" />
+      @message-input="sendMessage"
+    />
   </div>
+
+  <Modal id="topic-picker">
+    <template #header>Topic Picker</template>
+
+    <div v-if="processing.loading">
+      generating topic list
+      <div class="spinner-border text-primary">
+        &nbsp;
+      </div>
+
+    </div>
+
+    <div v-else v-for="topic in processing.topics">
+      {{ topic }}
+    </div>
+  </Modal>
+
 </template>
 
 <script>
+import Modal from '@/components/Modal'
+
 import Chat from './Chat'
 import Sidebar from './Sidebar'
 
@@ -21,6 +42,7 @@ export default {
 
   components: {
     Chat,
+    Modal,
     Sidebar,
   },
 
@@ -31,6 +53,12 @@ export default {
       topics: [],
       user: this.$store.getters['auth/user'],
       waitingForResponse: false,
+
+      processing: {
+        threadId: null,
+        loading: false,
+        topics: [],
+      },
     }
   },
 
@@ -52,6 +80,18 @@ export default {
         _id: null,
         messages: [],
       }
+    },
+
+    async processThread(threadId) {
+      this.processing.loading = true
+      this.processing.threadId = threadId
+
+      this.$modal('topic-picker').show()
+
+      const response = await this.$post('/api/process/topics', threadId)
+
+      this.processing.topics = response.topics.topics
+      this.processing.loading = false
     },
 
     async sendMessage(text) {

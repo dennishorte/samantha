@@ -1,12 +1,15 @@
+const brain = require('../util/brain.js')
 const context = require('../util/context.js')
 const db = require('../models/db.js')
 const threadlib = require('../util/thread.js')
+const util = require('../util/util.js')
 
 
 module.exports = {
   login,
   message: require('./message.js').message,
   threads,
+  processTopics,
 }
 
 async function _createFirstUserIfNone(email, password) {
@@ -49,10 +52,26 @@ async function login(req, res) {
 }
 
 async function threads(req, res) {
+  util.assert(req.user._id.equals(req.body.userId), 'Access denied')
+
   const latest = await context.latest(req.body.userId)
 
   res.json({
     status: 'success',
     threads: latest.map(t => t.data)
+  })
+}
+
+async function processTopics(req, res) {
+  const threadData = await db.thread.findById(req.body.threadId)
+  const thread = new threadlib.Thread(threadData)
+
+  util.assert(req.user._id.equals(thread.getUserId()), 'Access denied')
+
+  const topics = await brain.topics(thread)
+
+  res.json({
+    status: 'success',
+    topics: topics,
   })
 }

@@ -38,16 +38,22 @@ Brain.embed = async function(texts) {
      finish_reason: 'stop'
    }
  */
-Brain.complete = async function(context) {
+Brain.complete = async function(context, format=null) {
   messages = [
     {"role": "system", "content": "You are an effecient program manager and personal assistant."},
     ...context
   ]
 
-  const completion = await Brain._getChatCompletion({
+  const request = {
     messages,
     model: "gpt-4o-mini",
-  })
+  }
+
+  if (format) {
+    request.response_format = format
+  }
+
+  const completion = await Brain._getChatCompletion(request)
 
   return completion.choices[0]
 }
@@ -104,6 +110,25 @@ Brain.summarize = async function(context) {
   result.keywords = result.keywords.map(x => x.toLowerCase())
 
   return result
+}
+
+const topicsFormat = z.object({
+  topics: z.array(z.string()),
+})
+
+Brain.topics = async function(thread) {
+  const messages = [
+    ...thread.getMessages(),
+    {
+      role: 'user',
+      content: 'Create a JSON array containing high-level topics discussed in the preceding conversation.'
+    },
+  ]
+
+  const result = await Brain.complete(messages, zodResponseFormat(topicsFormat, 'topics'))
+  const topics = JSON.parse(result.message.content)
+
+  return topics
 }
 
 Brain._getEmbedding = async function(body) {
