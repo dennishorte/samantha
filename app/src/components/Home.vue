@@ -13,7 +13,7 @@
     />
   </div>
 
-  <Modal id="topic-picker">
+  <Modal id="topic-picker" @ok="processTopics">
     <template #header>Topic Picker</template>
 
     <div v-if="processing.loading">
@@ -24,8 +24,11 @@
 
     </div>
 
-    <div v-else v-for="topic in processing.topics">
-      {{ topic }}
+    <div v-else v-for="(topic, index) in processing.topics">
+      <div class="topic-picker-option input-group">
+        <input class="form-control" v-model="processing.topics[index]" />
+        <button class="btn btn-small btn-secondary" @click="removeTopic(topic)">x</button>
+      </div>
     </div>
   </Modal>
 
@@ -57,6 +60,7 @@ export default {
       processing: {
         threadId: null,
         loading: false,
+        origTopics: [],
         topics: [],
       },
     }
@@ -82,16 +86,44 @@ export default {
       }
     },
 
-    async processThread(threadId) {
+    async processThread({ threadId }) {
+      console.log(threadId)
       this.processing.loading = true
       this.processing.threadId = threadId
 
       this.$modal('topic-picker').show()
 
-      const response = await this.$post('/api/process/topics', threadId)
+      //      const response = await this.$post('/api/process/topics', threadId)
 
-      this.processing.topics = response.topics.topics
+      //      this.processing.topics = response.topics.topics
+      this.processing.origTopics = [
+        "Samantha App Development",
+        "Robot Dog Development",
+        "Deck Building",
+        "Wiring Replacement Project",
+        "Creative Storytelling",
+        "Voice Interface Implementation",
+        "Time Management and Motivation",
+      ]
+      this.resetTopics()
       this.processing.loading = false
+    },
+
+    async processTopics() {
+      const response = await this.$post('/api/process/apply', {
+        threadId: this.processing.threadId,
+        topics: this.processing.topics,
+      })
+
+      console.log(response)
+    },
+
+    removeTopic(topic) {
+      this.processing.topics = this.processing.topics.filter(x => x !== topic)
+    },
+
+    resetTopics(topic) {
+      this.processing.topics = [...this.processing.origTopics]
     },
 
     async sendMessage(text) {
@@ -149,5 +181,9 @@ export default {
 
   display: flex;
   flex-direction: row;
+}
+
+.topic-picker-option {
+  margin-bottom: .25em;
 }
 </style>

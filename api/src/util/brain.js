@@ -131,10 +131,74 @@ Brain.topics = async function(thread) {
   return topics
 }
 
+Brain.groupByTopics = async function(thread, topics) {
+  topics.push('other')
+  topics = topics
+    .map(x => x.trim())
+    .filter(x => x.length > 0)
+
+  const topicsString = topics.join('\n')
+
+  const groups = {}
+  const __addToGroups = (topic, exchange) => {
+    if (topic in groups) {
+      groups[topic].push(exchange)
+    }
+    else {
+      groups[topic] = [exchange]
+    }
+  }
+
+  const exchanges = _exchanges(thread.getMessages())
+  for (const x of exchanges) {
+    const exchangeString = x
+      .map(e => `**${e.role}**\n${e.content}`)
+      .join('\n\n')
+
+    const context = [
+      ...x,
+      {
+        role: 'user',
+        content: `Here is a list of valid topics.
+${topicsString}
+
+Which topic or topics does the following exchange best fit?
+${exchangeString}
+
+Your answer should be just a topic from the list, without any special formatting.
+        `,
+      },
+    ]
+
+    const response = await Brain.complete(context)
+    const topic = response.message.content
+    __addToGroups(topic, x)
+  }
+
+  return groups
+}
+
 Brain._getEmbedding = async function(body) {
   return await openai.embeddings.create(body)
 }
 
 Brain._getChatCompletion = async function(body) {
   return await openai.chat.completions.create(body)
+}
+
+function _exchanges(messages) {
+  const output = []
+  let exchange = []
+  for (const m of messages) {
+    if (m.role === 'user') {
+      output.push(exchange)
+      exchange = [m]
+    }
+    else {
+      exchange.push(m)
+    }
+  }
+
+  output.shift()
+  return output
 }

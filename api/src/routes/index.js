@@ -9,6 +9,7 @@ module.exports = {
   login,
   message: require('./message.js').message,
   threads,
+  processApply,
   processTopics,
 }
 
@@ -63,15 +64,29 @@ async function threads(req, res) {
 }
 
 async function processTopics(req, res) {
-  const threadData = await db.thread.findById(req.body.threadId)
-  const thread = new threadlib.Thread(threadData)
-
-  util.assert(req.user._id.equals(thread.getUserId()), 'Access denied')
-
+  const thread = await _threadFromReq(req)
   const topics = await brain.topics(thread)
 
   res.json({
     status: 'success',
     topics: topics,
   })
+}
+
+async function processApply(req, res) {
+  const thread = await _threadFromReq(req)
+  const topics = req.body.topics
+  const groups = await brain.groupByTopics(thread, topics)
+  res.json({
+    status: 'success',
+    groups,
+  })
+}
+
+
+async function _threadFromReq(req) {
+  const threadData = await db.thread.findById(req.body.threadId)
+  const thread = new threadlib.Thread(threadData)
+  util.assert(req.user._id.equals(thread.getUserId()), 'Access denied')
+  return thread
 }
