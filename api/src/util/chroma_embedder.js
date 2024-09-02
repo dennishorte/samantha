@@ -1,7 +1,7 @@
-const brain = require('./brain.js')
+import brain from './brain.js'
 
 
 function Embedder() {}
 Embedder.prototype.generate = brain.embed
 
-module.exports = Embedder
+export default Embedder

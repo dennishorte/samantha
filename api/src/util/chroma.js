@@ -1,6 +1,6 @@
-const { ChromaClient } = require("chromadb")
-const brain = require('./brain.js')
-const Embedder = require('./chroma_embedder.js')
+import { ChromaClient } from "chromadb"
+import brain from './brain.js'
+import Embedder from './chroma_embedder.js'
 
 const client = new ChromaClient()
 
@@ -12,7 +12,7 @@ const Chroma = {
 
   getThreadCollection,
 }
-module.exports = Chroma
+export default Chroma
 
 
 ////////////////////////////////////////////////////////////////////////////////

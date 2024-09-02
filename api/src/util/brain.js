@@ -1,12 +1,12 @@
-const OpenAI = require("openai")
-const { zodResponseFormat } = require("openai/helpers/zod")
-const { z } = require("zod")
+import OpenAI from "openai"
+import { zodResponseFormat } from "openai/helpers/zod"
+import { z } from "zod"
 
 const openai = new OpenAI()
 
 
 const Brain = {}
-module.exports = Brain
+export default Brain
 
 
 Brain.embed = async function(texts) {

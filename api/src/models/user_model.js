@@ -1,12 +1,12 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
-const databaseClient = require('../util/mongo.js').client
-const database = databaseClient.db('sam')
+import MongoUtil from '../util/mongo.js'
+const database = MongoUtil.client.db('sam')
 const userCollection = database.collection('user')
 
 const User = {}
-module.exports = User
+export default User
 
 
 User.checkPassword = async function(email, password) {

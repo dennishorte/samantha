@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
+import { MongoClient } from "mongodb"
 
 
 const db_host = process.env.DB_HOST
@@ -13,6 +13,8 @@ const uri = `mongodb://${db_user}:${db_pass}@${db_host}:${db_port}?retryWrites=t
 const client = new MongoClient(uri)
 client.connect()
 
-module.exports = {
+const MongoUtil = {
   client,
 }
+
+export default MongoUtil

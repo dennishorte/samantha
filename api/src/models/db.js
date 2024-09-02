@@ -1,4 +1,7 @@
-module.exports = {
-  thread: require('./thread_model.js'),
-  user: require('./user_model.js'),
+import ThreadService from './thread_model.js'
+import UserService from './user_model.js'
+
+export default {
+  thread: ThreadService,
+  user: UserService,
 }

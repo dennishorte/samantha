@@ -1,13 +1,14 @@
-const brain = require('../util/brain.js')
-const context = require('../util/context.js')
-const db = require('../models/db.js')
-const threadlib = require('../util/thread.js')
-const util = require('../util/util.js')
+import brain from '../util/brain.js'
+import context from '../util/context.js'
+import db from '../models/db.js'
+import message from './message.js'
+import threadlib from '../util/thread.js'
+import util from '../util/util.js'
 
 
-module.exports = {
+export default {
   login,
-  message: require('./message.js').message,
+  message,
   threads,
   processApply,
   processTopics,

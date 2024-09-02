@@ -1,16 +1,14 @@
-const brain = require('../util/brain.js')
-const chroma = require('../util/chroma.js')
-const context = require('../util/context.js')
-const db = require('../models/db.js')
-const threadlib = require('../util/thread.js')
-const util = require('../util/util.js')
+import brain from '../util/brain.js'
+import chroma from '../util/chroma.js'
+import context from '../util/context.js'
+import db from '../models/db.js'
+import threadlib from '../util/thread.js'
+import util from '../util/util.js'
 
 
-module.exports = {
-  message,
-}
+export default Message
 
-async function message(req, res) {
+async function Message(req, res) {
   const text = _ensureText(req.body.text)
   const stm = await _getLatestMemories(req.body.userId)
   const latest = util.array.last(stm)

@@ -1,16 +1,16 @@
-require('dotenv').config()
+import 'dotenv/config'
 
-const bodyParser = require('body-parser')
-const express = require('express')
-const path = require('path')
+import bodyParser from 'body-parser'
+import express from 'express'
+import path from 'path'
 
-const middleware = require('./src/middleware.js')
-const routes = require('./src/routes')
+import middleware from './src/middleware.js'
+import routes from './src/routes/index.js'
 
 const app = express()
 const port = 3001
 
-app.use(express.static(path.join(__dirname, '../app/dist')))
+app.use(express.static(path.join(import.meta.dirname, '../app/dist')))
 app.use(middleware.authenticate)
 app.use(bodyParser.json({ limit: "5kb" }))
 app.use(middleware.coerceIds)

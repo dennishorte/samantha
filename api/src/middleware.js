@@ -1,14 +1,14 @@
-const { ObjectId } = require('mongodb')
-const passport = require('passport')
-const JwtStrategy = require('passport-jwt').Strategy
-const ExtractJwt = require('passport-jwt').ExtractJwt
-const db = require('./models/db.js')
+import { ObjectId } from 'mongodb'
+import { Strategy as JwtStrategy } from 'passport-jwt'
+import { ExtractJwt } from 'passport-jwt'
+import passport from 'passport'
+import db from './models/db.js'
 
 const Middleware = {
   authenticate,
   coerceIds,
 }
-module.exports = Middleware
+export default Middleware
 
 
 // Configure the Bearer strategy for use by Passport.

@@ -1,14 +1,14 @@
-const threadlib = require('../util/thread.js')
+import threadlib from '../util/thread.js'
+import MongoUtil from '../util/mongo.js'
 
-const databaseClient = require('../util/mongo.js').client
-const database = databaseClient.db('sam')
+const database = MongoUtil.client.db('sam')
 const threadCollection = database.collection('thread')
 
 
 const Thread = {
   coll: threadCollection
 }
-module.exports = Thread
+export default Thread
 
 
 Thread.findById = async function(threadId) {

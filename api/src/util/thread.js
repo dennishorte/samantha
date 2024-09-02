@@ -1,7 +1,7 @@
-const brain = require('./brain.js')
+import brain from './brain.js'
 
 
-module.exports = {
+export default {
   Thread,
   MessageFactory,
   threadDataFactory,

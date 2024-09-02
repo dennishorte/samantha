@@ -1,9 +1,9 @@
-const db = require('../models/db.js')
-const threadlib = require('./thread.js')
+import db from '../models/db.js'
+import threadlib from './thread.js'
 
 
 const Context = {}
-module.exports = Context
+export default Context
 
 
 Context.assemble = function(threads) {
