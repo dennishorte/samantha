@@ -1,9 +1,10 @@
-const { ChromaClient } = require("chromadb")
+import { ChromaClient } from 'chromadb'
 
-const chroma = require('./chroma.js')
-const fs = require('node:fs')
-const path = require('node:path')
-const uuid = require('uuid')
+import fs from 'node:fs'
+import path from 'node:path'
+import { v4 as uuidv4 } from 'uuid'
+
+import chroma from '../../../src/util/chroma.js'
 
 const testClient = new ChromaClient()
 const testCollections = []
@@ -35,7 +36,7 @@ afterAll(async () => {
 // This will generate a new collection with a random name.
 // All test collections will be deleted during the afterAll hook for this test file.
 async function getTestCollection() {
-  const collectionName = 'test_' + uuid.v4()
+  const collectionName = 'test_' + uuidv4()
   testCollections.push(collectionName)
 
   const collection = await testClient.createCollection({
@@ -47,7 +48,7 @@ async function getTestCollection() {
 }
 
 describe('basic DB integration tests', () => {
-  test('fetches are semantically ordered', async () => {
+  it('returns semantically ordered results', async () => {
     const coll = await getTestCollection()
 
     await coll.insert([
@@ -78,7 +79,7 @@ describe('basic DB integration tests', () => {
     expect(floridaResponse[0].matches[0].text).toBe('orange')
   })
 
-  test('can fetch embedding only entries with text', async () => {
+  it('can fetch embedding only entries with text', async () => {
     const coll = await getTestCollection()
 
     const insertItems = [
@@ -103,7 +104,7 @@ describe('basic DB integration tests', () => {
 
   })
 
-  test('can fetch embedding only entries with embeddings', async () => {
+  it('can fetch embedding only entries with embeddings', async () => {
     const coll = await getTestCollection()
 
     const insertItems = [
