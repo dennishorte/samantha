@@ -1,8 +1,6 @@
-import OpenAI from "openai"
 import { zodResponseFormat } from "openai/helpers/zod"
 import { z } from "zod"
-
-const openai = new OpenAI()
+import llm from './openai.js'
 
 
 const Brain = {}
@@ -10,12 +8,7 @@ export default Brain
 
 
 Brain.embed = async function(texts) {
-  const embedding = await Brain._getEmbedding({
-    model: "text-embedding-3-small",
-    input: texts,
-    encoding_format: "float",
-  })
-
+  const embedding = await llm.embed(texts)
   return embedding.data.map(datum => datum.embedding)
 }
 
@@ -39,22 +32,11 @@ Brain.embed = async function(texts) {
    }
  */
 Brain.complete = async function(context, format=null) {
-  messages = [
+  const messages = [
     {"role": "system", "content": "You are an effecient program manager and personal assistant."},
     ...context
   ]
-
-  const request = {
-    messages,
-    model: "gpt-4o-mini",
-  }
-
-  if (format) {
-    request.response_format = format
-  }
-
-  const completion = await Brain._getChatCompletion(request)
-
+  const completion = await llm.complete(messages, format)
   return completion.choices[0]
 }
 
@@ -84,11 +66,7 @@ Brain.summarize = async function(context) {
     ...context
   ]
 
-  const completion = await Brain._getChatCompletion({
-    messages,
-    model: "gpt-4o-mini",
-    response_format: zodResponseFormat(SummarizationResponse, 'summary'),
-  })
+  const completion = await llm.complete(messages, zodResponseFormat(SummarizationResponse, 'summary'))
 
   let result
   try {
@@ -176,14 +154,6 @@ Your answer should be just a topic from the list, without any special formatting
   }
 
   return groups
-}
-
-Brain._getEmbedding = async function(body) {
-  return await openai.embeddings.create(body)
-}
-
-Brain._getChatCompletion = async function(body) {
-  return await openai.chat.completions.create(body)
 }
 
 function _exchanges(messages) {
