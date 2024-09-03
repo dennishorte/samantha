@@ -93,7 +93,7 @@ export default {
 
       this.$modal('topic-picker').show()
 
-      //      const response = await this.$post('/api/process/topics', threadId)
+      //      const response = await this.$post('/api/topics/generate', threadId)
 
       //      this.processing.topics = response.topics.topics
       this.processing.origTopics = [
@@ -110,7 +110,7 @@ export default {
     },
 
     async processTopics() {
-      const response = await this.$post('/api/process/apply', {
+      const response = await this.$post('/api/topics/apply', {
         threadId: this.processing.threadId,
         topics: this.processing.topics,
       })

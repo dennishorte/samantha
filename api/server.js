@@ -22,8 +22,8 @@ app.post('/api/guest/login', routes.login)
 
 app.post('/api/message', routes.message)
 app.post('/api/threads', routes.threads)
-app.post('/api/process/topics', routes.processTopics)
-app.post('/api/process/apply', routes.processApply)
+app.post('/api/topics/generate', routes.topics.generate)
+app.post('/api/topics/apply', routes.topics.apply)
 
 
 ////////////////////////////////////////////////////////////

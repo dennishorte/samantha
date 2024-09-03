@@ -1,17 +1,15 @@
-import brain from '../util/brain.js'
 import context from '../util/context.js'
 import db from '../models/db.js'
-import message from './message.js'
-import threadlib from '../util/thread.js'
 import util from '../util/util.js'
 
+import messageRoute from './message.js'
+import topicRoutes from './topic_routes.js'
 
 export default {
   login,
-  message,
+  message: messageRoute,
   threads,
-  processApply,
-  processTopics,
+  topics: topicRoutes,
 }
 
 async function _createFirstUserIfNone(email, password) {
@@ -62,32 +60,4 @@ async function threads(req, res) {
     status: 'success',
     threads: latest.map(t => t.data)
   })
-}
-
-async function processTopics(req, res) {
-  const thread = await _threadFromReq(req)
-  const topics = await brain.topics(thread)
-
-  res.json({
-    status: 'success',
-    topics: topics,
-  })
-}
-
-async function processApply(req, res) {
-  const thread = await _threadFromReq(req)
-  const topics = req.body.topics
-  const groups = await brain.groupByTopics(thread, topics)
-  res.json({
-    status: 'success',
-    groups,
-  })
-}
-
-
-async function _threadFromReq(req) {
-  const threadData = await db.thread.findById(req.body.threadId)
-  const thread = new threadlib.Thread(threadData)
-  util.assert(req.user._id.equals(thread.getUserId()), 'Access denied')
-  return thread
 }

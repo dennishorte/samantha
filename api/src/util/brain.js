@@ -120,10 +120,10 @@ Brain.groupByTopics = async function(thread, topics) {
   const groups = {}
   const __addToGroups = (topic, exchange) => {
     if (topic in groups) {
-      groups[topic].push(exchange)
+      exchange.forEach(x => groups[topic].push(x))
     }
     else {
-      groups[topic] = [exchange]
+      groups[topic] = [...exchange]
     }
   }
 
