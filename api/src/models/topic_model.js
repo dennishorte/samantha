@@ -2,12 +2,13 @@ import { ObjectId } from 'mongodb'
 import MongoUtil from '../util/mongo.js'
 import util from '../util/util.js'
 
-const database = MongoUtil.client.db('sam')
-const topicCollection = database.collection('topic')
+export default TopicService
 
-
-const Topic = {}
-export default Topic
+function TopicService(client) {
+  this._client = client
+  this._db = this._client.db('sam')
+  this._coll = this._db.collection('topic')
+}
 
 
 function _factory(userId, name) {
@@ -24,18 +25,18 @@ function _factory(userId, name) {
 }
 
 
-Topic.findByUserId = async function(userId, projection={}) {
-  const cursor = await topicCollection.find({ userId }, projection)
+TopicService.prototype.findByUserId = async function(userId, projection={}) {
+  const cursor = await this._coll.find({ userId }, projection)
   const array = await cursor.toArray()
   return array
 }
 
 
-Topic.updateMany = async function(userId, groups) {
+TopicService.prototype.updateMany = async function(userId, groups) {
   util.assert(userId instanceof ObjectId, "Invalid user ID received")
 
   const groupNames = Object.keys(groups)
-  const existingCursor = await topicCollection.find({ name: { $in: groupNames } })
+  const existingCursor = await this._coll.find({ name: { $in: groupNames } })
   const existing = await existingCursor.toArray()
 
   for (const [name, utterances] of Object.entries(groups)) {
@@ -49,7 +50,7 @@ Topic.updateMany = async function(userId, groups) {
       exist.messages = [...exist.messages, ...messages]
 
       // Add the messages to the existing topic
-      await topicCollection.updateOne(
+      await this._coll.updateOne(
         { _id: exist._id },
         exist
       )
@@ -58,7 +59,7 @@ Topic.updateMany = async function(userId, groups) {
       // Create a new topic
       topic = _factory(userId, name)
       topic.messages = messages
-      await topicCollection.insertOne(topic)
+      await this._coll.insertOne(topic)
     }
 
     // TODO: Check if the topic needs additional processing, such as splitting into sub-topics.

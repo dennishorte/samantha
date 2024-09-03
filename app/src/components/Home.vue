@@ -87,15 +87,14 @@ export default {
     },
 
     async processThread({ threadId }) {
-      console.log(threadId)
       this.processing.loading = true
       this.processing.threadId = threadId
 
       this.$modal('topic-picker').show()
 
-      //      const response = await this.$post('/api/topics/generate', threadId)
+      // const response = await this.$post('/api/topics/generate', { threadId })
 
-      //      this.processing.topics = response.topics.topics
+      // this.processing.topics = response.topics.topics
       this.processing.origTopics = [
         "Samantha App Development",
         "Robot Dog Development",
