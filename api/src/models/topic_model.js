@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb'
-import MongoUtil from '../util/mongo.js'
 import util from '../util/util.js'
 
 export default TopicService

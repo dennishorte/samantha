@@ -1,16 +1,18 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-import MongoUtil from '../util/mongo.js'
-const database = MongoUtil.client.db('sam')
-const userCollection = database.collection('user')
 
-const User = {}
-export default User
+export default UserService
+
+function UserService(client) {
+  this._client = client
+  this._db = this._client.db('sam')
+  this._coll = this._db.collection('user')
+}
 
 
-User.checkPassword = async function(email, password) {
-  const user = await User.findByEmail(email)
+UserService.prototype.checkPassword = async function(email, password) {
+  const user = await this.findByEmail(email)
 
   if (!user) {
     console.log(`User not found: ${user}`)
@@ -26,14 +28,14 @@ User.checkPassword = async function(email, password) {
   return user
 }
 
-User.create = async function({ email, password }) {
-  const existingUser = await User.findByEmail(email)
+UserService.prototype.create = async function({ email, password }) {
+  const existingUser = await this.findByEmail(email)
   if (!!existingUser) {
     throw `User with email (${email}) already exists`
   }
 
   const passwordHash = await bcrypt.hash(password, 10)
-  const insertResult = await userCollection.insertOne({
+  const insertResult = await this._coll.insertOne({
     email,
     passwordHash,
     createdTimestamp: Date.now(),
@@ -44,28 +46,28 @@ User.create = async function({ email, password }) {
     throw new Error('User insert failed')
   }
 
-  _setTokenForUserById(insertedId)
+  this._setTokenForUserById(insertedId)
 
-  return await User.findById(insertedId)
+  return await this.findById(insertedId)
 }
 
-User.findById = async function(id) {
-  return await userCollection.findOne({ _id: id })
+UserService.prototype.findById = async function(id) {
+  return await this._coll.findOne({ _id: id })
 }
 
-User.findByIds = async function(ids) {
-  return await userCollection.find({ _id: { $in: ids } })
+UserService.prototype.findByIds = async function(ids) {
+  return await this._coll.find({ _id: { $in: ids } })
 }
 
-User.findByEmail = async function(email) {
-  return await userCollection.findOne({ email })
+UserService.prototype.findByEmail = async function(email) {
+  return await this._coll.findOne({ email })
 }
 
 // Used to test if there exist any users in the database.
 // Should only be used when the app is first created to create an initial admin user.
-User.isEmpty = async function() {
+UserService.prototype.isEmpty = async function() {
   try {
-    const one = await userCollection.findOne({})
+    const one = await this._coll.findOne({})
     return !one
   }
   catch (err) {
@@ -73,10 +75,10 @@ User.isEmpty = async function() {
   }
 }
 
-async function _setTokenForUserById(object_id) {
+UserService.prototype._setTokenForUserById = async function(object_id) {
   const filter = { _id: object_id }
   const updater = { $set: { token: _generateToken(object_id) } }
-  return await userCollection.updateOne(filter, updater)
+  return await this._coll.updateOne(filter, updater)
 }
 
 function _generateToken(id) {
