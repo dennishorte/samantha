@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { v4 as uuidv4 } from 'uuid'
 
-import chroma from '../../../src/util/chroma.js'
+import chroma from '../../src/util/chroma.js'
 
 const testClient = new ChromaClient()
 const testCollections = []

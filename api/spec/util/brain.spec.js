@@ -1,4 +1,4 @@
-import brain from '../../../src/util/brain.js'
+import brain from '../../src/util/brain.js'
 
 
 describe('openai mock', function() {
