@@ -23,6 +23,13 @@ function _factory(userId, name) {
   }
 }
 
+TopicService.prototype.create = async function(userId, name, messages) {
+  const topic = _factory(userId, name)
+  topic.messages = messages || []
+  const result = await this._coll.insertOne(topic)
+  return await this._coll.findOne({ _id: result.insertedId })
+}
+
 
 TopicService.prototype.findByUserId = async function(userId, projection={}) {
   const cursor = await this._coll.find({ userId }, projection)
@@ -49,16 +56,13 @@ TopicService.prototype.updateMany = async function(userId, groups) {
       exist.messages = [...exist.messages, ...messages]
 
       // Add the messages to the existing topic
-      await this._coll.updateOne(
+      await this._coll.replaceOne(
         { _id: exist._id },
         exist
       )
     }
     else {
-      // Create a new topic
-      topic = _factory(userId, name)
-      topic.messages = messages
-      await this._coll.insertOne(topic)
+      topic = await this.create(userId, name, messages)
     }
 
     // TODO: Check if the topic needs additional processing, such as splitting into sub-topics.
