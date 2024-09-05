@@ -9,6 +9,7 @@ export default {
   apply,
   fetch,
   generate,
+  rename,
 }
 
 async function generate(req, res) {
@@ -44,9 +45,35 @@ async function fetch(req, res) {
   })
 }
 
+async function rename(req, res) {
+  const topic = await _topicFromReq(req)
+  const newName = req.body.name.trim()
+
+  if (!newName) {
+    res.json({
+      status: 'error',
+      message: 'empty name',
+    })
+    return
+  }
+
+  topic.name = newName
+  await db.topic.save(topic)
+
+  res.json({
+    status: 'success',
+  })
+}
+
 async function _threadFromReq(req) {
   const threadData = await db.thread.findById(req.body.threadId)
   const thread = new threadlib.Thread(threadData)
   util.assert(req.user._id.equals(thread.getUserId()), 'Access denied')
   return thread
+}
+
+async function _topicFromReq(req) {
+  const topic = await db.topic.findById(req.body.topicId)
+  util.assert(req.user._id.equals(topic.userId), 'Access denied')
+  return topic
 }

@@ -30,6 +30,9 @@ TopicService.prototype.create = async function(userId, name, messages) {
   return await this._coll.findOne({ _id: result.insertedId })
 }
 
+TopicService.prototype.findById = async function(topicId) {
+  return await this._coll.findOne({ _id: topicId })
+}
 
 TopicService.prototype.findByUserId = async function(userId, projection={}) {
   const cursor = await this._coll.find({ userId }, projection)
@@ -37,6 +40,9 @@ TopicService.prototype.findByUserId = async function(userId, projection={}) {
   return array
 }
 
+TopicService.prototype.save = async function(topic) {
+  await this._coll.replaceOne({ _id: topic._id }, topic)
+}
 
 TopicService.prototype.updateMany = async function(userId, groups) {
   util.assert(userId instanceof ObjectId, "Invalid user ID received")

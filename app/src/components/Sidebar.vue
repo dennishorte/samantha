@@ -11,12 +11,12 @@
 
     <hr />
 
-    <div
-      v-for="topic in topics"
-      class="topic-name"
-      @click="showTopic(topic._id)"
-    >
-      {{ topicName(topic) }}
+    <div v-for="topic in topics" class="topic-item">
+      <div class="topic-name" @click="showTopic(topic._id)">{{ topicName(topic) }}</div>
+      <div v-if="selected === topic" class="topic-menu">
+        <div>combine</div>
+        <div @click="renameTopic">rename</div>
+      </div>
     </div>
   </div>
 </template>
@@ -29,11 +29,18 @@ export default {
   props: {
     threads: Array,
     topics: Array,
+
+    selected: null,
   },
 
   methods: {
     process(threadId) {
       this.$emit('process-thread', { threadId })
+    },
+
+    // Assumes that the user is renaming the active topic
+    renameTopic(topic) {
+      this.$emit('rename-topic')
     },
 
     showThread(threadId) {
@@ -69,8 +76,20 @@ export default {
   justify-content: space-between;
 }
 
+.topic-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .topic-name {
   overflow: hidden;
   white-space: nowrap;
+}
+
+.topic-menu {
+  margin-left: 1em;
+  color: darkgray;
+  font-size: .9rem;
 }
 </style>

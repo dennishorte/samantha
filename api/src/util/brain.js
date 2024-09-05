@@ -99,7 +99,7 @@ Brain.topics = async function(thread) {
     ...thread.getMessages(),
     {
       role: 'user',
-      content: 'Create a JSON array containing high-level topics discussed in the preceding conversation.'
+      content: 'Create a JSON array containing topics discussed during the whole backlog of our conversation. The topics should be high level, so that if we talked about many small parts of one larger project, only include the high level project.'
     },
   ]
 

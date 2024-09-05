@@ -1,9 +1,11 @@
 <template>
   <div class="home">
     <Sidebar
+      :selected="activeThread"
       :threads="threads"
       :topics="topics"
       @process-thread="processThread"
+      @rename-topic="renameTopic"
       @show-thread="setActiveThread"
       @show-topic="setActiveTopic"
     />
@@ -33,6 +35,11 @@
     </div>
   </Modal>
 
+  <Modal id="topic-renamer" @ok="processRenameTopic">
+    <template #header>Rename Topic</template>
+    <input class="form-control" v-model="rename" />
+  </Modal>
+
 </template>
 
 <script>
@@ -52,7 +59,8 @@ export default {
 
   data() {
     return {
-      activeThreadIndex: 0,
+      activeThreadIndex: -1,
+      activeTopicIndex: -1,
       threads: [this.newThread()],
       topics: [],
       user: this.$store.getters['auth/user'],
@@ -64,6 +72,8 @@ export default {
         origTopics: [],
         topics: [],
       },
+
+      rename: '',
     }
   },
 
@@ -95,6 +105,15 @@ export default {
       }
     },
 
+    async processRenameTopic() {
+      await this.$post('/api/topics/rename', {
+        topicId: this.activeThread._id,
+        name: this.rename,
+      })
+
+      this.activeThread.name = this.rename
+    },
+
     async processThread({ threadId }) {
       this.processing.loading = true
       this.processing.threadId = threadId
@@ -113,12 +132,15 @@ export default {
         threadId: this.processing.threadId,
         topics: this.processing.topics,
       })
-
-      console.log(response)
     },
 
     removeTopic(topic) {
       this.processing.topics = this.processing.topics.filter(x => x !== topic)
+    },
+
+    renameTopic() {
+      this.rename = this.activeThread.name
+      this.$modal('topic-renamer').show()
     },
 
     resetTopics(topic) {
