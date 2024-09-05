@@ -60,4 +60,9 @@ export default {
   flex-direction: row;
   justify-content: space-between;
 }
+
+.topic-name {
+  overflow: hidden;
+  white-space: nowrap;
+}
 </style>

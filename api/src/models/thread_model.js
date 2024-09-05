@@ -72,3 +72,15 @@ ThreadService.prototype.save = async function(thread) {
     throw new Error('Failed to save thread')
   }
 }
+
+ThreadService.prototype.setProcessed = async function(thread) {
+  await this._coll.updateOne(
+    { _id: thread.getId() },
+    {
+      $set: {
+        processed: true,
+        processedTimestamp: Date.now(),
+      }
+    }
+  )
+}

@@ -25,10 +25,14 @@ function threadDataFactory(data={}) {
     userId: null,
     name: 'new thread',
     messages: [],
-    nextThreadId: null,
+
     closed: false,
+    processed: false,
+
     createdTimestamp: Date.now(),
     closedTimestamp: null,
+    processedTimestamp: null,
+
     parentId: null,
     childId: null,
   }

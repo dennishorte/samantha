@@ -92,18 +92,9 @@ export default {
 
       this.$modal('topic-picker').show()
 
-      // const response = await this.$post('/api/topics/generate', { threadId })
+      const response = await this.$post('/api/topics/generate', { threadId })
+      this.processing.origTopics = response.topics.topics
 
-      // this.processing.topics = response.topics.topics
-      this.processing.origTopics = [
-        "Samantha App Development",
-        "Robot Dog Development",
-        "Deck Building",
-        "Wiring Replacement Project",
-        "Creative Storytelling",
-        "Voice Interface Implementation",
-        "Time Management and Motivation",
-      ]
       this.resetTopics()
       this.processing.loading = false
     },
@@ -157,17 +148,37 @@ export default {
     setThreads(threads) {
       this.threads = threads
       this.activeThreadIndex = this.threads.length - 1
-    }
+    },
+
+    setTopics(topics) {
+      this.topics = topics
+      this.activeTopicIndex = -1
+    },
+
+    async loadThreads() {
+      const response = await this.$post('/api/threads', { userId: this.user._id })
+      if (response.status === 'success') {
+        this.setThreads(response.threads)
+      }
+      else {
+        throw new Error('error fetching threads: ' + response.message)
+      }
+    },
+
+    async loadTopics() {
+      const response = await this.$post('/api/topics/fetch', { userId: this.user._id })
+      if (response.status === 'success') {
+        this.setTopics(response.topics)
+      }
+      else {
+        throw new Error('error fetching threads: ' + response.message)
+      }
+    },
   },
 
   async mounted() {
-    const response = await this.$post('/api/threads', { userId: this.user._id })
-    if (response.status === 'success') {
-      this.setThreads(response.threads)
-    }
-    else {
-      throw new Error('error fetching threads: ' + response.message)
-    }
+    await this.loadThreads()
+    await this.loadTopics()
   },
 }
 </script>

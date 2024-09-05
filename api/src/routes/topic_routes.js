@@ -7,6 +7,7 @@ import util from '../util/util.js'
 
 export default {
   apply,
+  fetch,
   generate,
 }
 
@@ -24,8 +25,9 @@ async function apply(req, res) {
   const thread = await _threadFromReq(req)
   const topics = req.body.topics
   const groups = await brain.groupByTopics(thread, topics)
+  await db.thread.setProcessed(thread)
   await db.topic.updateMany(req.user._id, groups)
-  const allTopics = await db.topic.findByUserId(req.user._id, projection={ _id: 1, name: 1, })
+  const allTopics = await db.topic.findByUserId(req.user._id, { _id: 1, name: 1, })
 
   res.json({
     status: 'success',
@@ -33,6 +35,14 @@ async function apply(req, res) {
   })
 }
 
+async function fetch(req, res) {
+  const allTopics = await db.topic.findByUserId(req.user._id, { _id: 1, name: 1, })
+
+  res.json({
+    status: 'success',
+    topics: allTopics
+  })
+}
 
 async function _threadFromReq(req) {
   const threadData = await db.thread.findById(req.body.threadId)
