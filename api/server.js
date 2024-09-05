@@ -29,9 +29,9 @@ app.post('/api/topics/apply', routes.topics.apply)
 ////////////////////////////////////////////////////////////
 // Initialize
 
-import { initialize as initializeDatabase } from './src/models/db.js'
+import db from './src/models/db.js'
 import MongoUtil from './src/util/mongo.js'
-initializeDatabase(MongoUtil.client)
+db.initialize(MongoUtil.client)
 
 app.listen(port, () => {
   console.log(`Server listening on the port::${port}`)
