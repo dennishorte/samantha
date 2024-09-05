@@ -3,8 +3,9 @@
     <Sidebar
       :threads="threads"
       :topics="topics"
-      @show-thread="setActiveThread"
       @process-thread="processThread"
+      @show-thread="setActiveThread"
+      @show-topic="setActiveTopic"
     />
     <Chat
       :thread="activeThread"
@@ -68,7 +69,15 @@ export default {
 
   computed: {
     activeThread() {
-      return this.threads[this.activeThreadIndex]
+      if (this.activeThreadIndex >= 0) {
+        return this.threads[this.activeThreadIndex]
+      }
+      else if (this.activeTopicIndex >= 0) {
+        return this.topics[this.activeTopicIndex]
+      }
+      else {
+        return {}
+      }
     },
   },
 
@@ -142,6 +151,18 @@ export default {
       }
       else {
         this.activeThreadIndex = index
+        this.activeTopicIndex = -1
+      }
+    },
+
+    setActiveTopic({ topicId }) {
+      const index = this.topics.findIndex(x => x._id === topicId)
+      if (index === -1) {
+        alert('invalid topic id:' + topicId)
+      }
+      else {
+        this.activeTopicIndex = index
+        this.activeThreadIndex = -1
       }
     },
 

@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <div v-for="thread in threads" class="thread-name">
-      <div @click="show(thread._id)">{{ threadName(thread) }}</div>
+      <div @click="showThread(thread._id)">{{ threadName(thread) }}</div>
       <div
         v-if="thread.closed && !thread.processed"
         class="badge text-bg-warning"
@@ -11,7 +11,11 @@
 
     <hr />
 
-    <div v-for="topic in topics" class="topic-name">
+    <div
+      v-for="topic in topics"
+      class="topic-name"
+      @click="showTopic(topic._id)"
+    >
       {{ topicName(topic) }}
     </div>
   </div>
@@ -32,8 +36,12 @@ export default {
       this.$emit('process-thread', { threadId })
     },
 
-    show(threadId) {
+    showThread(threadId) {
       this.$emit('show-thread', { threadId })
+    },
+
+    showTopic(topicId) {
+      this.$emit('show-topic', { topicId })
     },
 
     threadName(thread) {
