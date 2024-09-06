@@ -14,7 +14,7 @@
     <div v-for="topic in topics" class="topic-item">
       <div class="topic-name" @click="showTopic(topic._id)">{{ topicName(topic) }}</div>
       <div v-if="selected === topic" class="topic-menu">
-        <div>combine</div>
+        <div @click="combineTopic">combine</div>
         <div @click="renameTopic">rename</div>
       </div>
     </div>
@@ -34,6 +34,10 @@ export default {
   },
 
   methods: {
+    combineTopic(topic) {
+      this.$emit('combine-topic')
+    },
+
     process(threadId) {
       this.$emit('process-thread', { threadId })
     },

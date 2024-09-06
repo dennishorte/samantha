@@ -24,6 +24,7 @@ app.post('/api/message', routes.message)
 app.post('/api/threads', routes.threads)
 
 app.post('/api/topics/apply', routes.topics.apply)
+app.post('/api/topics/combine', routes.topics.combine)
 app.post('/api/topics/fetch', routes.topics.fetch)
 app.post('/api/topics/generate', routes.topics.generate)
 app.post('/api/topics/rename', routes.topics.rename)

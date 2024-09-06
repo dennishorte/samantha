@@ -4,6 +4,7 @@
       :selected="activeThread"
       :threads="threads"
       :topics="topics"
+      @combine-topic="combineTopic"
       @process-thread="processThread"
       @rename-topic="renameTopic"
       @show-thread="setActiveThread"
@@ -38,6 +39,29 @@
   <Modal id="topic-renamer" @ok="processRenameTopic">
     <template #header>Rename Topic</template>
     <input class="form-control" v-model="rename" />
+  </Modal>
+
+  <Modal id="topic-combiner" @ok="processCombineTopic">
+    <template #header>Combine Topic</template>
+
+    <div class="alert alert-danger">
+      This cannot be undone.
+    </div>
+
+
+    <div><strong>Merge:</strong> {{ activeThread.name }}</div>
+    <div>
+      <strong>Into:</strong>
+      <select class="form-select" ref="combinetarget">
+        <option>---</option>
+        <option v-for="topic in topics" :value="topic._id">
+          {{ topic.name }}
+        </option>
+      </select>
+    </div>
+    <div style="color: #888;">
+      "{{ activeThread.name }}" will disappear, and its context will become a part of the selected topic.
+    </div>
   </Modal>
 
 </template>
@@ -98,11 +122,29 @@ export default {
   },
 
   methods: {
+    combineTopic() {
+      this.$modal('topic-combiner').show()
+    },
+
     newThread() {
       return {
         _id: null,
         messages: [],
       }
+    },
+
+    async processCombineTopic() {
+      const target = this.$refs.combinetarget.value.trim()
+      if (!target) {
+        return
+      }
+
+      await this.$post('/api/topics/combine', {
+        mergeId: this.activeThread._id,
+        intoId: target,
+      })
+
+      await this.loadTopics()
     },
 
     async processRenameTopic() {

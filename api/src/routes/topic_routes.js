@@ -2,11 +2,13 @@ import brain from '../util/brain.js'
 import db from '../models/db.js'
 import mongoUtil from '../util/mongo.js'
 import threadlib from '../util/thread.js'
+import topiclib from '../util/topic.js'
 import util from '../util/util.js'
 
 
 export default {
   apply,
+  combine,
   fetch,
   generate,
   rename,
@@ -33,6 +35,20 @@ async function apply(req, res) {
   res.json({
     status: 'success',
     topics: allTopics
+  })
+}
+
+async function combine(req, res) {
+  const merge = await _topicFromReq(req, 'mergeId')
+  const into = await _topicFromReq(req, 'intoId')
+
+  topiclib.merge(merge, into)
+
+  await db.topic.save(into)
+  await db.topic.deactivate(merge._id)
+
+  res.json({
+    status: 'success',
   })
 }
 
@@ -72,8 +88,8 @@ async function _threadFromReq(req) {
   return thread
 }
 
-async function _topicFromReq(req) {
-  const topic = await db.topic.findById(req.body.topicId)
+async function _topicFromReq(req, fieldName='topicId') {
+  const topic = await db.topic.findById(req.body[fieldName])
   util.assert(req.user._id.equals(topic.userId), 'Access denied')
   return topic
 }

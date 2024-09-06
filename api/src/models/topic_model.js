@@ -20,6 +20,7 @@ function _factory(userId, name) {
       name: null,
     },
     children: [],
+    deactivated: false,
   }
 }
 
@@ -30,12 +31,19 @@ TopicService.prototype.create = async function(userId, name, messages) {
   return await this._coll.findOne({ _id: result.insertedId })
 }
 
+TopicService.prototype.deactivate = async function(topicId) {
+  await this._coll.updateOne(
+    { _id: topicId },
+    { $set: { deactivated: true } },
+  )
+}
+
 TopicService.prototype.findById = async function(topicId) {
   return await this._coll.findOne({ _id: topicId })
 }
 
 TopicService.prototype.findByUserId = async function(userId, projection={}) {
-  const cursor = await this._coll.find({ userId }, projection)
+  const cursor = await this._coll.find({ userId, deactivated: false }, projection)
   const array = await cursor.toArray()
   return array
 }
