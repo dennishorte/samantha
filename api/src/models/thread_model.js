@@ -51,7 +51,7 @@ ThreadService.prototype.create = async function(userId, name='new thread') {
   if (!insertResult.insertedId) {
     throw new Error('thread creation failed')
   }
-  return await ThreadService.prototype.findById(insertResult.insertedId)
+  return await this.findById(insertResult.insertedId)
 }
 
 ThreadService.prototype.createFrom = async function(thread) {
@@ -59,7 +59,7 @@ ThreadService.prototype.createFrom = async function(thread) {
   if (!insertResult.insertedId) {
     throw new Error('thread creation failed')
   }
-  return await ThreadService.prototype.findById(insertResult.insertedId)
+  return await this.findById(insertResult.insertedId)
 }
 
 ThreadService.prototype.save = async function(thread) {
