@@ -58,7 +58,7 @@ Brain.summarize = async function(context) {
     throw new Error('empty context')
   }
 
-  messages = [
+  const messages = [
     {
       "role": "system",
       "content": summarySystemMessage,
